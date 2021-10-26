@@ -14,13 +14,11 @@ with open("CWE835_Infinite_Loop__while_01.c", 'r') as f:
             line = f.readline()
 
         line = line.replace("\n", "")
-        line = line.replace(" ", "")
 
         text.append(line)
         line = f.readline()
 
-temp = "".join(text)
-test = tokenize(BytesIO(temp.encode('utf-8')).readline)
+test = tokenize(BytesIO(("".join(text)).encode('utf-8')).readline)
 
 tokenized = []
 for toknum, tokval, _, _, _ in test:
