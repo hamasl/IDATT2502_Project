@@ -2,7 +2,7 @@ from io import BytesIO
 from tokenize import tokenize
 text = []
 
-with open("CWE835_Infinite_Loop__while_01.c", 'r') as f:
+with open("data/CWE835_Infinite_Loop__while_01.c", 'r') as f:
     line = f.readline()
     while line:
         if "/*" in line:
