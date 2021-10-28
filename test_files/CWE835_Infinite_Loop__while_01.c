@@ -7,12 +7,12 @@
 
 #ifndef OMITBAD
 
-void CWE835_Infinite_Loop__while_01_bad() 
+void CWE835_Infinite_Loop__while_01_bad()
 {
     int i = 0;
-    
+
     /* FLAW: Infinite Loop - while() with no break point */
-    while(i >= 0)
+    while (i >= 0)
     {
         printIntLine(i);
         i = (i + 1) % 256;
@@ -23,23 +23,23 @@ void CWE835_Infinite_Loop__while_01_bad()
 
 #ifndef OMITGOOD
 
-static void good1() 
+static void good1()
 {
     int i = 0;
 
-    while(i >= 0)
+    while (i >= 0)
     {
         /* FIX: Add a break point for the loop if i = 10 */
-        if (i == 10) 
-        { 
-            break; 
+        if (i == 10)
+        {
+            break;
         }
         printIntLine(i);
         i = (i + 1) % 256;
     }
 }
 
-void CWE835_Infinite_Loop__while_01_good() 
+void CWE835_Infinite_Loop__while_01_good()
 {
     good1();
 }
@@ -54,10 +54,10 @@ void CWE835_Infinite_Loop__while_01_good()
 
 #ifdef INCLUDEMAIN
 
-int main(int argc, char * argv[]) 
+int main(int argc, char *argv[])
 {
     /* seed randomness */
-    srand( (unsigned)time(NULL) );
+    srand((unsigned)time(NULL));
 
 #ifndef OMITGOOD
     printLine("Calling good()...");
@@ -72,6 +72,6 @@ int main(int argc, char * argv[])
 #endif /* OMITBAD */
 
     return 0;
-} 
+}
 
 #endif
