@@ -4,3 +4,4 @@ venv
 ./data
 data/*
 __pycache__/
+formatted/
