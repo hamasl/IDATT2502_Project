@@ -1,0 +1,7 @@
+.idea
+.DS_Store
+venv
+./data
+data/*
+__pycache__/
+formatted/
