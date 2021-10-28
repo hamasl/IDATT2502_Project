@@ -1,5 +1,4 @@
 from io import BytesIO
-import token
 import tokenize as tn
 import re
 
@@ -60,7 +59,7 @@ def tokenize(function_array):
             text.append(line)
         tokenized = []
         for _, tokval, _, _, _ in tn.tokenize(BytesIO(("".join(text)).encode('utf-8')).readline):
-            if(tokval == '' or tokval == 'utf-8'): continue
+            if(tokval == '' or tokval == 'utf-8' or tokval == ' '): continue
             tokenized.append(tokval)
         
         tokenized_functions.append(tokenized)
