@@ -1,6 +1,9 @@
+import os
 from io import BytesIO
 import tokenize as tn
 import re
+
+dirname = os.path.dirname(__file__)
 
 """
     Input: File/filename to be tokenized
@@ -72,7 +75,7 @@ def tokenize(function_array):
 
 if __name__ == '__main__':
     # print(tokenize("CWE835_Infinite_Loop__while_01.c"))
-    functions, types = get_functions("./formatted/CWE835_Infinite_Loop__while_01.c")
+    functions, types = get_functions(os.path.join(dirname,"../formatted/CWE835_Infinite_Loop__while_01.c"))
     print(types)
     for tokenized in tokenize(functions):
         print(tokenized)

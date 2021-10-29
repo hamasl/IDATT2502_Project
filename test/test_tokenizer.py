@@ -1,5 +1,5 @@
 import unittest
-import tokenizer as tn
+import preprocessing.tokenizer as tn
 
 class TokenizerTest(unittest.TestCase):
 

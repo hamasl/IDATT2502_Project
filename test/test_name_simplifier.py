@@ -1,6 +1,6 @@
 import unittest
-import name_simplifier as ns
-import simplifier_constants as sc
+import preprocessing.name_simplifier as ns
+import preprocessing.simplifier_constants as sc
 
 class NameSimplifierTest(unittest.TestCase):
 
