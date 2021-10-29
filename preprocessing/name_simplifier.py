@@ -1,4 +1,4 @@
-import simplifier_constants as sc
+import preprocessing.simplifier_constants as sc
 
 """
 
