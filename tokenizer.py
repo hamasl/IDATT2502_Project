@@ -14,6 +14,7 @@ import re
 
 def get_functions(filename):
     functions = []
+    function_types = []
     with open(filename, 'r') as f:
         line = f.readline()
         while line:
@@ -21,6 +22,8 @@ def get_functions(filename):
             function = ""
             match = re.search("^(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
             if(match): 
+                if "bad" in line: function_types.append(0)
+                else: function_types.append(1) 
                 brackets += 1
                 function += line
 
@@ -36,7 +39,8 @@ def get_functions(filename):
 
                 functions.append(function)
             line = f.readline()
-        return functions
+        assert len(functions) == len(function_types)
+        return functions, function_types
 
 def tokenize(function_array):
     tokenized_functions = []
@@ -68,6 +72,8 @@ def tokenize(function_array):
 
 if __name__ == '__main__':
     # print(tokenize("CWE835_Infinite_Loop__while_01.c"))
-    functions = get_functions("./formatted/CWE835_Infinite_Loop__while_01.c")
+    functions, types = get_functions("./formatted/CWE835_Infinite_Loop__while_01.c")
+    print(types)
     for tokenized in tokenize(functions):
         print(tokenized)
+        
