@@ -5,7 +5,6 @@ format_files() {
 	echo "$1"
 	for filename in $1/*.c; do
 		clang-format "$filename" > ../formatted/"$filename"
-		rm -f temp.c
 	done
 }
 
@@ -13,5 +12,6 @@ rm -r ./formatted
 mkdir formatted
 cd data/
 for folder in CWE*; do
-	format_files "$folder" &
+	format_files "$folder" >/dev/null & 
 done
+wait
