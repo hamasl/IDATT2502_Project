@@ -2,6 +2,8 @@ import torch
 
 def masking_padding(input):
 	max_len_row = len(max(input, key=len))
+	# Padded length must be multiplum of 4
+	max_len_row += (max_len_row % 4)
 	padded = torch.zeros((len(input), max_len_row))
 
 	for i in range(len(input)):
