@@ -2,9 +2,11 @@
 rm -r ./formatted
 mkdir formatted
 cd data/
-for filename in *.c; do
-	echo "$filename"
-	clang-format "$filename" > temp.c
-	cat temp.c > ../formatted/"$filename"
-	rm -f temp.c
+for folder in CWE*; do
+	mkdir ../formatted/"$folder"
+	echo "$folder"
+	for filename in $folder/*.c; do
+		clang-format "$filename" > ../formatted/"$filename"
+		rm -f temp.c
+	done
 done

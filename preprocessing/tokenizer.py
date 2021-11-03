@@ -3,7 +3,7 @@ from io import BytesIO
 import tokenize as tn
 import re
 
-dirname = os.path.dirname(__file__)
+dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
 
 """
     Input: File/filename to be tokenized
@@ -23,8 +23,8 @@ def get_functions(filename):
         while line:
             brackets = 0
             function = ""
-            match = re.search("^(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
-            if(match): 
+            match = re.search("^\s*(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
+            if(match and "main" not in line): 
                 if "bad" in line: function_types.append(0)
                 else: function_types.append(1) 
                 brackets += 1
@@ -74,9 +74,9 @@ def tokenize(function_array):
     return tokenized_functions
 
 if __name__ == '__main__':
-    # print(tokenize("CWE835_Infinite_Loop__while_01.c"))
-    functions, types = get_functions(os.path.join(dirname,"../formatted/CWE835_Infinite_Loop__while_01.c"))
-    print(types)
-    for tokenized in tokenize(functions):
-        print(tokenized)
+    for file in os.listdir(os.path.join(dirname, "CWE835_Infinite_Loop")):
+        functions, types = get_functions(os.path.join(dirname,"CWE835_Infinite_Loop/",file))
+        print(types)
+        for tokenized in tokenize(functions):
+            print(tokenized)
         
