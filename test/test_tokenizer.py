@@ -17,3 +17,4 @@ class TokenizerTest(unittest.TestCase):
 		input = ["#include 'stdio'\n#DEFINE ABC 123\n if(1) return 1;\n"]
 		expected = [['if', '(', '1', ')', 'return', '1', ';']]
 		self.assertEqual(tn.file_tokenize(input), expected)
+		
