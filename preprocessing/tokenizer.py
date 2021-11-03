@@ -42,7 +42,7 @@ def get_functions(filename, type_number):
 
                 functions.append(function)
             line = f.readline()
-        assert len(functions) == len(function_types)
+        if len(functions) == len(function_types): raise "Number of functions not equal number of types"
         return functions, function_types
 
 def file_tokenize(function_array):
@@ -84,10 +84,4 @@ def tokenize():
                 x.append(tokenized)
     return x, y
 
-
-
-if __name__ == '__main__':
-    x,y = tokenize()
-    print(x)
-    print(y)
         
