@@ -12,8 +12,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param device: Is the device that the neural network should run on. By default it's cpu but it can be changed to cuda.
         """
         super(ConvolutionalNeuralNetworkModel, self).__init__()
-        self._num_of_classes = num_of_classes
-        # TODO save function size and num of classes along with weights
+        self.num_of_classes = num_of_classes
         self.input_element_size = input_element_size
         self.device = device
         # cnn_multiple is connected to MaxPool layer. Which is kernel_size**num_of_max_pool_layers
@@ -23,6 +22,11 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self.logits = self._get_model()
 
     def _get_model(self):
+        """
+        Create a sequantial model, the size of each input element is a multiple of 4.
+        This i a required because of the two max-pool layers with kernel size two: 2**2 = 4
+        :return: None
+        """
         if self.input_element_size % self.cnn_multiple != 0:
             raise Exception(f"Size of each function needs to be a multiple of {self.cnn_multiple}")
         return nn.Sequential(
@@ -35,19 +39,33 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=2),
             nn.Flatten(),
-            nn.Linear(128 * self.input_element_size//4, 1024),
-            nn.Linear(1024, self._num_of_classes)).to(self.device)
+            nn.Linear(128 * self.input_element_size // 4, 1024),
+            nn.Linear(1024, self.num_of_classes)).to(self.device)
 
     # Predictor
     def f(self, x: torch.Tensor):
+        """
+        Returns a prediction of what classes the elements belong to.
+        :param x: The tensor to make a prediction from.
+        :return: torch.Tensor
+        """
         return torch.softmax(self.logits(x), dim=1)
 
     # Cross Entropy loss
-    def loss(self, x: torch.Tensor, y: torch.Tensor):
+    def loss(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+        #TODO inspect if it actually works logits return e.g. 600*10 while y is 600
+        #TODO maybe use argamx(1) on logits
+        #TODO add documentation
         return nn.functional.cross_entropy(self.logits(x), y).to(self.device)
 
     # Accuracy
-    def accuracy(self, x:torch.Tensor, y:torch.Tensor):
+    def accuracy(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+        """
+        Measures accuracy by taking in data elements, and the actual classes to those data points
+        :param x: The data elements to be predicted.
+        :param y: The correct class for each data element
+        :return: torch.Tensor
+        """
         return torch.mean(torch.eq(self.f(x).argmax(1), y).float()).to(self.device)
 
     def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, epochs=5, learning_rate=0.001,
@@ -81,22 +99,22 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
     def save_model_state(self, directory: str):
         """
         Saves the model state
-        :param directory:
-        :return:
+        :param directory: The path of the directory to write the state to.
+        :return: None
         """
         with open(directory + "/hyper_params.txt", 'w') as f:
-            f.write(f"{self._num_of_classes},{self.input_element_size}")
+            f.write(f"{self.num_of_classes},{self.input_element_size}")
         torch.save(self.state_dict(), directory + "/cnn_state.pth")
 
     def load_model_state(self, directory: str):
         """
         Loads the model state
-        :param directory:
-        :return:
+        :param directory: The path of the directory to load the state from.
+        :return: None
         """
         with open(directory + "/hyper_params.txt", 'r') as f:
             line = f.readline().split(",")
-            self._num_of_classes = int(line[0])
+            self.num_of_classes = int(line[0])
             self.input_element_size = int(line[1])
         self.logits = self._get_model()
         self.load_state_dict(torch.load(directory + "/cnn_state.pth"))
@@ -106,10 +124,10 @@ if __name__ == '__main__':
     model = ConvolutionalNeuralNetworkModel(12, 32)
     model.load_model_state("./state")
     print(model.input_element_size)
-    print(model._num_of_classes)
+    print(model.num_of_classes)
     x_train = torch.rand(600, 1, 32)
     print(x_train)
     y_train = torch.randint(0, 9, (600,))
     print(y_train)
     model.train_model(x_train, y_train)
-    #model.save_model_state("./state")
+    # model.save_model_state("./state")

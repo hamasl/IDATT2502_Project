@@ -6,5 +6,3 @@ data/*
 __pycache__/
 formatted/
 .vscode
-*.pth
-*/state
