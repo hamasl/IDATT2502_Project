@@ -6,3 +6,4 @@ data/*
 __pycache__/
 formatted/
 .vscode
+test_dict.csv
