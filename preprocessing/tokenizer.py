@@ -3,7 +3,7 @@ from io import BytesIO
 import tokenize as tn
 import re
 
-dirname = os.path.dirname(__file__)
+dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
 
 """
     Input: File/filename to be tokenized
@@ -15,18 +15,18 @@ dirname = os.path.dirname(__file__)
     Output: Tokenized array of the file
 """
 
-def get_functions(filename):
+def get_functions(filename, type_number):
     functions = []
     function_types = []
     with open(filename, 'r') as f:
         line = f.readline()
-        while line:
+        while line and len(functions) < 2:
             brackets = 0
             function = ""
-            match = re.search("^(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
-            if(match): 
+            match = re.search("^\s*(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
+            if(match and "main" not in line): 
                 if "bad" in line: function_types.append(0)
-                else: function_types.append(1) 
+                else: function_types.append(type_number) 
                 brackets += 1
                 function += line
 
@@ -42,10 +42,10 @@ def get_functions(filename):
 
                 functions.append(function)
             line = f.readline()
-        assert len(functions) == len(function_types)
+        if len(functions) != len(function_types): raise Exception("Number of functions not equal number of types")
         return functions, function_types
 
-def tokenize(function_array):
+def file_tokenize(function_array):
     tokenized_functions = []
     for function in function_array:
         text = []
@@ -73,10 +73,15 @@ def tokenize(function_array):
         
     return tokenized_functions
 
-if __name__ == '__main__':
-    # print(tokenize("CWE835_Infinite_Loop__while_01.c"))
-    functions, types = get_functions(os.path.join(dirname,"../formatted/CWE835_Infinite_Loop__while_01.c"))
-    print(types)
-    for tokenized in tokenize(functions):
-        print(tokenized)
+def tokenize():
+    x = []
+    y = []
+    for index, folder in enumerate(os.listdir(os.path.join(dirname))):
+        for file in os.listdir(os.path.join(dirname, folder)):
+            functions, types = get_functions(os.path.join(dirname, folder, file), index+1)
+            y += types
+            for tokenized in file_tokenize(functions):
+                x.append(tokenized)
+    return x, y
+
         
