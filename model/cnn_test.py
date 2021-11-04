@@ -3,7 +3,7 @@ from torch import nn
 
 if __name__ == '__main__':
 
-    num_classes = 10
+    num_classes = 12
     a = torch.rand(6000, 1, 32)
     size = a.shape[2]
     # cnn_multiple is connected to MaxPool layer. Which is kernel_size**num_of_max_pool_layers
