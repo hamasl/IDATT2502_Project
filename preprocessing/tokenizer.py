@@ -3,7 +3,6 @@ from io import BytesIO
 import tokenize as tn
 import re
 
-dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
 
 
 
@@ -68,8 +67,8 @@ def file_tokenize(function_array):
 
             if '//' in line: line = line[:line.index("//")]
             
-            if line.startswith("#"):
-                continue
+            if line.startswith("#"): continue
+            
             line = line.replace("\n", "")
 
             text.append(line)
@@ -93,6 +92,7 @@ def tokenize():
     """
     x = []
     y = []
+    dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
     for index, folder in enumerate(os.listdir(os.path.join(dirname))):
         for file in os.listdir(os.path.join(dirname, folder)):
             functions, types = get_functions(os.path.join(dirname, folder, file), index+1)

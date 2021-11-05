@@ -1,6 +1,6 @@
 import torch
 
-def masking_padding(input):
+def pad_and_mask(input):
 	"""
 	Input: A nested array containing tokenized functions
 	Finds the largest tokenized function array, and makes the length a multiple of four
