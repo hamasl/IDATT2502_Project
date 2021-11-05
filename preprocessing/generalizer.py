@@ -1,4 +1,4 @@
-import preprocessing.simplifier_constants as sc
+import preprocessing.generalizer_constants as sc
 
 
 def handle_literals(inp: [[str]], dictionary: [str]) -> [[str]]:

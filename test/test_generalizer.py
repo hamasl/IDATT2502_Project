@@ -1,6 +1,6 @@
 import unittest
 import preprocessing.generalizer as ns
-import preprocessing.simplifier_constants as sc
+import preprocessing.generalizer_constants as sc
 
 # TODO remove
 dictionary = ["+", "}", "{", "float", "char", "int", "*", ";", "(", ")", "=", "void", ",", sc.BASE_STRING,
