@@ -1,12 +1,3 @@
-/*
- * @description Infinite Loop - for()
- *
- * */
-
-#include "std_testcase.h"
-
-#ifndef OMITBAD
-
 void CWE835_Infinite_Loop__for_01_bad() {
   int i = 0;
 
@@ -16,9 +7,6 @@ void CWE835_Infinite_Loop__for_01_bad() {
   }
 }
 
-#endif /* OMITBAD */
-
-#ifndef OMITGOOD
 
 static void good1() {
   int i = 0;
