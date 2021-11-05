@@ -4,22 +4,22 @@ from os.path import isfile
 max_id = -1
 
 
-def readDictionary(dictFile: str) -> dict:
+def read_dictionary(dict_file: str) -> dict:
     """
-    Reads dictionary from a .csv file specified by dictFile parameter.
+    Reads dictionary from a .csv file specified by dict_file parameter.
 
-    :param dictFile: path to dictionary .csv file as string
+    :param dict_file: path to dictionary .csv file as string
     :return: dictionary of read tokens
     """
     dictionary = {}
-    if isfile(dictFile):
-        with open(dictFile, mode='r') as infile:
+    if isfile(dict_file):
+        with open(dict_file, mode='r') as infile:
             reader = csv.reader(infile)
             dictionary = {rows[0]: rows[1] for rows in reader}
     return dictionary
 
 
-def addToDictionary(inp: [[]], out: str):
+def add_to_dictionary(inp: [[]], out: str):
     """
     Reads dictionary if it exists (creates a new if it doesn't)
     and adds token values to the dictionary that do not already
@@ -31,7 +31,7 @@ def addToDictionary(inp: [[]], out: str):
     """
     global max_id
     index = 0
-    dictionary = readDictionary(out)
+    dictionary = read_dictionary(out)
     if dictionary:
         index = int(list(dictionary.keys())[-1]) + 1
     for function in inp:
@@ -47,7 +47,7 @@ def addToDictionary(inp: [[]], out: str):
             writer.writerow([key, value])
 
 
-def convertToNumericalValues(tokens: [[]], dictFile: str) -> [[]]:
+def convert_to_numerical_values(tokens: [[]], dict_file: str) -> [[]]:
     """
     Reads dictionary if it exists and converts tokens into numerical values
     specified in the dictionary. If a token value does not exist in the current
@@ -57,13 +57,13 @@ def convertToNumericalValues(tokens: [[]], dictFile: str) -> [[]]:
     convert it to a negative value.
 
     :param tokens: 2D array of tokens
-    :param dictFile: path to dictionary .csv file as string
+    :param dict_file: path to dictionary .csv file as string
     :return: 2D array with numerical values
     """
     global max_id
     num_values = []
     index = 0
-    dictionary = readDictionary(dictFile)
+    dictionary = read_dictionary(dict_file)
     if dictionary:
         index = int(list(dictionary.keys())[-1]) + 1
     key_list = list(dictionary.keys())
@@ -79,7 +79,7 @@ def convertToNumericalValues(tokens: [[]], dictFile: str) -> [[]]:
                 num_values.append(int(key_list[val_list.index(token)]))
             else:
                 num_values.append(index)
-                with open(dictFile, 'a') as file:
+                with open(dict_file, 'a') as file:
                     writer = csv.writer(file)
                     writer.writerow([index, token])
                     index += 1
