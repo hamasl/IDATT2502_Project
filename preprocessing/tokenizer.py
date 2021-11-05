@@ -25,8 +25,8 @@ def get_functions(filename, type_number):
             function = ""
             match = re.search("^\s*(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
             if(match and "main" not in line): 
-                if "bad" in line: function_types.append(0)
-                else: function_types.append(type_number) 
+                if "bad" in line: function_types.append(type_number)
+                else: function_types.append(0) 
                 brackets += 1
                 function += line
 
