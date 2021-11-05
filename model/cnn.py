@@ -1,9 +1,11 @@
+import os
+
 import torch
 import torch.nn as nn
 
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
-    def __init__(self, num_of_classes: int, input_element_size: int, device=torch.device("cpu")):
+    def __init__(self, num_of_classes: int, input_element_size: int, device=torch.device("cpu"), directory="/state"):
         """
         Creates a model object using the given parameters.
 
@@ -17,6 +19,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self.device = device
         # cnn_multiple is connected to MaxPool layer. Which is kernel_size**num_of_max_pool_layers
         self.cnn_multiple = 4
+        self._dirname = os.path.join(os.path.dirname(__file__), directory)
+
 
         # Model layers (includes initialized model variables):
         self.logits = self._get_model()
@@ -96,38 +100,32 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             if verbose:
                 print(f"Completed {epoch} epochs.")
 
-    def save_model_state(self, directory: str):
+    def save_model_state(self):
         """
         Saves the model state
-        :param directory: The path of the directory to write the state to.
         :return: None
         """
-        with open(directory + "/hyper_params.txt", 'w') as f:
+        with open(os.path.join(self._dirname,"/hyper_params.txt"), 'w') as f:
             f.write(f"{self.num_of_classes},{self.input_element_size}")
-        torch.save(self.state_dict(), directory + "/cnn_state.pth")
+        torch.save(self.state_dict(), os.path.join(self._dirname,"/cnn_state.pth"))
 
-    def load_model_state(self, directory: str):
+    def load_model_state(self):
         """
         Loads the model state
-        :param directory: The path of the directory to load the state from.
         :return: None
         """
-        with open(directory + "/hyper_params.txt", 'r') as f:
+        with open(os.path.join(self._dirname,"/hyper_params.txt"), 'r') as f:
             line = f.readline().split(",")
             self.num_of_classes = int(line[0])
             self.input_element_size = int(line[1])
         self.logits = self._get_model()
-        self.load_state_dict(torch.load(directory + "/cnn_state.pth"))
+        self.load_state_dict(torch.load(os.path.join(self._dirname,"/cnn_state.pth")))
 
 
 if __name__ == '__main__':
     model = ConvolutionalNeuralNetworkModel(12, 32)
-    model.load_model_state("./state")
-    print(model.input_element_size)
-    print(model.num_of_classes)
+    model.load_model_state()
     x_train = torch.rand(600, 1, 32)
-    print(x_train)
     y_train = torch.randint(0, 9, (600,))
-    print(y_train)
     model.train_model(x_train, y_train)
     # model.save_model_state("./state")
