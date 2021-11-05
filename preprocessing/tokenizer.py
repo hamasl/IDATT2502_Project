@@ -3,19 +3,16 @@ from io import BytesIO
 import tokenize as tn
 import re
 
-dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
 
-"""
-    Input: File/filename to be tokenized
 
-    Reads each line in file, and removes comments, new_line characters, and c compiler directives.
-
-    Thereafter, a python tokenizer, to tokenizer the array
-
-    Output: Tokenized array of the file
-"""
 
 def get_functions(filename, type_number):
+    """
+    Input: File/filename to read and convert file into functions
+    Uses regex, to find the functions start, and runs a while loop to find the closing curly bracket
+    Only parses one bad function and one good function before it returns
+    Output: Array of strings with functions, and an array of the functions type, 0 being none
+    """
     functions = []
     function_types = []
     with open(filename, 'r') as f:
@@ -46,6 +43,14 @@ def get_functions(filename, type_number):
         return functions, function_types
 
 def file_tokenize(function_array):
+    """
+    Input: A array of function strings
+    Removes single line comment, multilinecomments, compiler directives and new lines
+    It then uses a python tokenizer(https://docs.python.org/3/library/tokenize.html), 
+    to split character in the function into an array
+
+    Returns a list of the tokenized function
+    """
     tokenized_functions = []
     for function in function_array:
         text = []
@@ -54,13 +59,16 @@ def file_tokenize(function_array):
             if "/*" in line: is_in_comment = True
                 
             if '*/' not in line and is_in_comment: continue
+
                     
             if is_in_comment: 
                 line = line[line.index("*/")+2: -1]
                 is_in_comment = False
 
-            if line.startswith("#"):
-                continue
+            if '//' in line: line = line[:line.index("//")]
+            
+            if line.startswith("#"): continue
+            
             line = line.replace("\n", "")
 
             text.append(line)
@@ -74,8 +82,17 @@ def file_tokenize(function_array):
     return tokenized_functions
 
 def tokenize():
+    """
+    Runs through every C file an formatted folder.
+    Reading two functions from each file and tokenize them into array
+    x is a double nested array, where each array in the array is a tokenized function
+    y is the type of the function from the nested array where the indexes are the same
+
+    returns x and y
+    """
     x = []
     y = []
+    dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
     for index, folder in enumerate(os.listdir(os.path.join(dirname))):
         for file in os.listdir(os.path.join(dirname, folder)):
             functions, types = get_functions(os.path.join(dirname, folder, file), index+1)
