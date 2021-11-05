@@ -14,4 +14,3 @@ def normalize(inp: [[]], min_id_val: int, max_val: int) -> [[]]:
         for (j, token) in enumerate(function):
             normalized[i][j] = (token - (min_id_val - 1)) / (max_val - (min_id_val - 1))
     return normalized
-
