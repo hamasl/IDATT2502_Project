@@ -6,4 +6,4 @@ format_test_files:
 
 
 run_preprocessing:
-	python3 -m ./preprocessing/main.py
+	python3 -m preprocessing
