@@ -5,3 +5,4 @@ __pycache__/
 formatted/
 .vscode
 data/
+processed/

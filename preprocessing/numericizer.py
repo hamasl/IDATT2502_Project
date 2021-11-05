@@ -14,7 +14,7 @@ def convert_to_numerical_values(tokens: [[]]) -> ([[]], int, int):
     num_values = tokens.copy()
     for (i, function) in enumerate(tokens):
         for (j, token) in enumerate(function):
-            if token[0:2:1] == "id":
+            if token[0:2:1] == "ID":
                 val = -(int(token[2:]) + 1)
                 num_values[i][j] = val
                 if min_id_val > val:
