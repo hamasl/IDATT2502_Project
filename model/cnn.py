@@ -37,9 +37,11 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             nn.ReLU(),
             nn.Conv1d(32, 64, kernel_size=3, padding=1),
             nn.ReLU(),
+            nn.Dropout(p=0.2),
             nn.MaxPool1d(kernel_size=2),
             nn.Conv1d(64, 128, kernel_size=3, padding=1),
             nn.ReLU(),
+            nn.Dropout(p=0.2),
             nn.MaxPool1d(kernel_size=2),
             nn.Flatten(),
             nn.Linear(128 * self.input_element_size // 4, 1024),
@@ -69,7 +71,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param y: The correct class for each data element
         :return: torch.Tensor
         """
-        return torch.mean(torch.eq(self.f(x).argmax(1), y).float()).to(self.device)
+        return torch.mean(torch.eq(self.f(x).argmax(1).to(self.device), y.to(self.device)).float()).to(self.device)
 
     def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, epochs=5, learning_rate=0.001,
                     verbose=False):
