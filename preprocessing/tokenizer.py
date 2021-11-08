@@ -106,7 +106,6 @@ def tokenize():
             for tokenized in file_tokenize(functions):
                 x.append(tokenized)
 
-    print(num_of_0)
     return x, y
 
         
