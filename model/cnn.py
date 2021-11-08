@@ -5,7 +5,7 @@ import torch.nn as nn
 
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
-    def __init__(self, num_of_classes: int, input_element_size: int, device=torch.device("cpu"), directory="/state"):
+    def __init__(self, num_of_classes: int, input_element_size: int, device=torch.device("cpu"), directory="state"):
         """
         Creates a model object using the given parameters.
 
@@ -20,7 +20,6 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         # cnn_multiple is connected to MaxPool layer. Which is kernel_size**num_of_max_pool_layers
         self.cnn_multiple = 4
         self._dirname = os.path.join(os.path.dirname(__file__), directory)
-
 
         # Model layers (includes initialized model variables):
         self.logits = self._get_model()
@@ -57,9 +56,9 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
 
     # Cross Entropy loss
     def loss(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-        #TODO inspect if it actually works logits return e.g. 600*10 while y is 600
-        #TODO maybe use argamx(1) on logits
-        #TODO add documentation
+        # TODO inspect if it actually works logits return e.g. 600*10 while y is 600
+        # TODO maybe use argamx(1) on logits
+        # TODO add documentation
         return nn.functional.cross_entropy(self.logits(x), y).to(self.device)
 
     # Accuracy
@@ -98,34 +97,25 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                 optimizer.zero_grad()  # Clear gradients for next step
 
             if verbose:
-                print(f"Completed {epoch} epochs.")
+                print(f"Completed {epoch + 1} epochs.")
 
     def save_model_state(self):
         """
         Saves the model state
         :return: None
         """
-        with open(os.path.join(self._dirname,"/hyper_params.txt"), 'w') as f:
+        with open(os.path.join(self._dirname, "hyper_params.txt"), 'w') as f:
             f.write(f"{self.num_of_classes},{self.input_element_size}")
-        torch.save(self.state_dict(), os.path.join(self._dirname,"/cnn_state.pth"))
+        torch.save(self.state_dict(), os.path.join(self._dirname, "cnn_state.pth"))
 
     def load_model_state(self):
         """
         Loads the model state
         :return: None
         """
-        with open(os.path.join(self._dirname,"/hyper_params.txt"), 'r') as f:
+        with open(os.path.join(self._dirname, "hyper_params.txt"), 'r') as f:
             line = f.readline().split(",")
             self.num_of_classes = int(line[0])
             self.input_element_size = int(line[1])
         self.logits = self._get_model()
-        self.load_state_dict(torch.load(os.path.join(self._dirname,"/cnn_state.pth")))
-
-
-if __name__ == '__main__':
-    model = ConvolutionalNeuralNetworkModel(12, 32)
-    model.load_model_state()
-    x_train = torch.rand(600, 1, 32)
-    y_train = torch.randint(0, 9, (600,))
-    model.train_model(x_train, y_train)
-    # model.save_model_state("./state")
+        self.load_state_dict(torch.load(os.path.join(self._dirname, "cnn_state.pth")))
