@@ -1,4 +1,5 @@
 run_tests:
+	mkdir -p ./test/model/state
 	python3 -m unittest
 
 format_test_files:

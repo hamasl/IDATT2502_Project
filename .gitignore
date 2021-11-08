@@ -6,4 +6,4 @@ formatted/
 .vscode
 data/
 processed/
-*/state/
+state
