@@ -94,7 +94,10 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                 self.loss(x_train_batches[batch].to(self.device),
                           y_train_batches[batch].to(self.device)).backward()  # Compute loss gradients
                 optimizer.step()  # Perform optimization by adjusting W and b,
-                optimizer.zero_grad()  # Clear gradients for next step
+                #Is faster than optimizer.zero_grad: https://betterprogramming.pub/how-to-make-your-pytorch-code-run-faster-93079f3c1f7b
+                for param in self.parameters():
+                    param.grad = None
+                #optimizer.zero_grad()  # Clear gradients for next step
 
             if verbose:
                 print(f"Completed {epoch + 1} epochs.")
