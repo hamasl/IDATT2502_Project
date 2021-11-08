@@ -3,41 +3,47 @@ from io import BytesIO
 import tokenize as tn
 import re
 
+NUMBER_OF_TYPES = 7
+number_of_good_functions = 0
 
-
-
-def get_functions(filename, type_number):
+def get_functions(filename, type_number, y_list_len):
     """
     Input: File/filename to read and convert file into functions
     Uses regex, to find the functions start, and runs a while loop to find the closing curly bracket
     Only parses one bad function and one good function before it returns
     Output: Array of strings with functions, and an array of the functions type, 0 being none
     """
+    global number_of_good_functions
     functions = []
     function_types = []
     with open(filename, 'r') as f:
         line = f.readline()
         while line and len(functions) < 2:
+            add_function = True
             brackets = 0
-            function = ""
+            function = ""   
             match = re.search("^\s*(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
             if(match and "main" not in line): 
                 if "bad" in line: function_types.append(type_number)
-                else: function_types.append(0) 
-                brackets += 1
-                function += line
-
-                if '}' in line:
-                    brackets = 0
-
-
-                while brackets > 0:
-                    line = f.readline()
-                    if '{' in line: brackets += 1
-                    if '}' in line: brackets -= 1
+                elif number_of_good_functions > y_list_len // NUMBER_OF_TYPES: add_function = False
+                else: 
+                    function_types.append(0) 
+                    number_of_good_functions += 1
+                if add_function:
+                    brackets += 1
                     function += line
 
-                functions.append(function)
+                    if '}' in line:
+                        brackets = 0
+
+
+                    while brackets > 0:
+                        line = f.readline()
+                        if '{' in line: brackets += 1
+                        if '}' in line: brackets -= 1
+                        function += line
+
+                    functions.append(function)
             line = f.readline()
         if len(functions) != len(function_types): raise Exception("Number of functions not equal number of types")
         return functions, function_types
@@ -95,10 +101,11 @@ def tokenize():
     dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
     for index, folder in enumerate(os.listdir(os.path.join(dirname))):
         for file in os.listdir(os.path.join(dirname, folder)):
-            functions, types = get_functions(os.path.join(dirname, folder, file), index+1)
+            functions, types = get_functions(os.path.join(dirname, folder, file), index+1, len(y))
             y += types
             for tokenized in file_tokenize(functions):
                 x.append(tokenized)
+
     return x, y
 
         
