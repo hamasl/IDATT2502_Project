@@ -1,10 +1,10 @@
 import numpy as np
 
-def index_pairing(function_list, word2idx_dict, window_size = 4):
+def index_pairing(function_list, word2idx_dict, window_size = 2):
 	idx_pairs = []
 
 	for function in function_list:
-		indices = [word2idx[word] for word in function]
+		indices = [word2idx_dict[word] for word in function]
 
 		for center_word_pos in range(len(indices)):
 			for w in range(-window_size, window_size + 1):
