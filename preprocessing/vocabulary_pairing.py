@@ -1,5 +1,4 @@
 import numpy as np
-import vocabulary as vocabulary
 
 def index_pairing(function_list, word2idx_dict, window_size = 4):
 	idx_pairs = []
@@ -17,9 +16,3 @@ def index_pairing(function_list, word2idx_dict, window_size = 4):
 				idx_pairs.append((indices[center_word_pos], indices[context_word_pos]))
 
 	return np.array(idx_pairs)
-
-					
-# if __name__ =='__main__':
-# 	functions_list = [['hey', 'cunt', 'hvor', 'er', 'du', 'hen'], ['abc', 'bcd']]
-# 	word2idx, idx2word = vocabulary.create_vocabulary(functions_list)
-# 	print(len(index_pairing(functions_list, word2idx, window_size=20)))
