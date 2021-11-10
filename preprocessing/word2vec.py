@@ -1,4 +1,4 @@
-# Implementation inspired by:
+# Implementation inspired by: https://towardsdatascience.com/implementing-word2vec-in-pytorch-skip-gram-model-e6bae040d2fb
 import numpy as np
 import torch
 from torch.autograd import Variable
