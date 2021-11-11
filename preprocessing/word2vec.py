@@ -1,7 +1,5 @@
 # Implementation inspired by: https://towardsdatascience.com/implementing-word2vec-in-pytorch-skip-gram-model-e6bae040d2fb
-import numpy as np
 import torch
-from torch.autograd import Variable
 from torch.nn.functional import log_softmax, nll_loss
 
 
@@ -12,25 +10,29 @@ class Word2Vec:
         self.word_idx = word_idx
         self.embedding_dims = 5
         self._device = device
-        self._W1 = Variable(torch.randn(self.embedding_dims, self.vocab_size, device=device).float(), requires_grad=True)
-        self._W2 = Variable(torch.randn(self.vocab_size, self.embedding_dims, device=device).float(), requires_grad=True)
+        self._W1 = torch.randn(self.embedding_dims, self.vocab_size, device=device, requires_grad=True,
+                               dtype=torch.float)
+        self._W2 = torch.randn(self.vocab_size, self.embedding_dims, device=device, requires_grad=True,
+                               dtype=torch.float)
 
-    def _get_input_layer(self, word_idx):
-        x = torch.zeros(self.vocab_size, device=self._device).float()
+    def get_input_layer(self, word_idx):
+        x = torch.zeros(self.vocab_size, device=self._device, dtype=torch.float)
         x[word_idx] = 1.0
         return x
 
     def f(self, x):
         return torch.matmul(self._W2, torch.matmul(self._W1, x))
 
-    def train(self, num_epochs, learning_rate, index_pairing, verbose=False):
+    def similarity(self, word_idx1, word_idx2):
+        return torch.dot(self._W2[word_idx1], self._W2[word_idx2]) / (
+                    torch.norm(self._W2[word_idx1]) * torch.norm(self._W2[word_idx2]))
 
+    def train(self, num_epochs, learning_rate, index_pairing, verbose=False):
         for epo in range(num_epochs):
             loss_val = 0
-            print(len(index_pairing))
             for data, target in index_pairing:
-                x = Variable(self._get_input_layer(data)).float()
-                y_true = Variable(torch.from_numpy(torch.tensor([target])).long())
+                x = self.get_input_layer(data)
+                y_true = torch.tensor([target], device=self._device, dtype=torch.long)
 
                 log_softmax_temp = log_softmax(self.f(x), dim=0)
 
@@ -42,5 +44,5 @@ class Word2Vec:
 
                 self._W1.grad.data.zero_()
                 self._W2.grad.data.zero_()
-            if epo % 1 == 0 and verbose:
+            if verbose:
                 print(f'Loss at epo {epo}: {loss_val / len(index_pairing)}')
