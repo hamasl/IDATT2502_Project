@@ -52,11 +52,7 @@ def handle_functions_and_variables(inp: [[str]], dictionary: [str]) -> [[str]]:
                 if len(inp[i]) > j + 1 and inp[i][j + 1] == "(":
                     row.append(sc.GENERIC_FUNCTION_NAME)
                 elif not inp[i][j].isdigit():
-                    if inp[i][j] in variable_names:
-                        row.append(sc.GENERIC_VARIABLE_BASE_NAME + str(variable_names.index(inp[i][j])))
-                    else:
-                        row.append(sc.GENERIC_VARIABLE_BASE_NAME + str(len(variable_names)))
-                        variable_names.append(inp[i][j])
+                    row.append(sc.GENERIC_VARIABLE_BASE_NAME)
                 else:
                     row.append(inp[i][j])
             else:
