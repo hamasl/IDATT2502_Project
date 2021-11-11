@@ -8,6 +8,9 @@ import preprocessing.generalizer as generalizer
 import preprocessing.vocabulary as vocab
 import preprocessing.vocabulary_pairing as vocab_pairing
 import preprocessing.word2vec as word2vec
+from preprocessing.similarity_table import get_similarity_table
+from preprocessing.padding import pad
+from preprocessing.x_table import get_x_table
 
 
 if __name__ == '__main__':
@@ -15,21 +18,19 @@ if __name__ == '__main__':
     dictionary = keyword_dictionary.get()
     x = generalizer.handle_functions_and_variables(generalizer.handle_literals(x, dictionary), dictionary)
     word2idx, idx2word = vocab.create_vocabulary(x)
-    x = vocab_pairing.index_pairing(x, word2idx)
-    print(x)
-    print(len(word2idx))
-    word2vec_model = word2vec.Word2Vec(len(word2idx), word2idx)
-    print("Train model")
-    word2vec_model.train(10, 0.0001, x, verbose=True)
-    x = word2vec_model.f(x)
-    print(x)
-    """
-    x, min_val, max_val = numericizer.convert_to_numerical_values(x)
-    x = normalizer.normalize(x, min_val, max_val)
-    pad = padding.pad(x)
-    x = torch.Tensor(pad).reshape(len(pad), 1, len(pad[0]))
+    index_pairing = vocab_pairing.index_pairing(x, word2idx)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f"Running on: {device}")
+    word2vec_model = word2vec.Word2Vec(len(word2idx), word2idx, device)
+    print("Training word2vec model:")
+    word2vec_model.train(1, 0.0001, index_pairing, verbose=True)
+    print("Completed word2vec training")
+    similarity_table = get_similarity_table(len(word2idx), word2vec_model)
+    x = get_x_table(x, similarity_table, word2idx)
+    x = pad(x, len(word2idx))
+    x_shape = x.shape
+    x = torch.reshape(x, (x_shape[0], 1, x_shape[1], x_shape[2]))
     y = torch.LongTensor(y).reshape(len(y))
-    """
     dirname = os.path.join(os.path.dirname(__file__), "../processed")
     torch.save(x, os.path.join(dirname, "x.pt"))
     torch.save(y, os.path.join(dirname, "y.pt"))
