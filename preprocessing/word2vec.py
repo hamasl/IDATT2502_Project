@@ -10,8 +10,10 @@ class Word2Vec:
         self.word_idx = word_idx
         self.embedding_dims = 5
         self._device = device
-        self._W1 = torch.randn(self.embedding_dims, self.vocab_size, device=device, requires_grad=True, dtype=torch.float)
-        self._W2 = torch.randn(self.vocab_size, self.embedding_dims, device=device, requires_grad=True, dtype=torch.float)
+        self._W1 = torch.randn(self.embedding_dims, self.vocab_size, device=device, requires_grad=True,
+                               dtype=torch.float)
+        self._W2 = torch.randn(self.vocab_size, self.embedding_dims, device=device, requires_grad=True,
+                               dtype=torch.float)
 
     def get_input_layer(self, word_idx):
         x = torch.zeros(self.vocab_size, device=self._device, dtype=torch.float)
@@ -22,14 +24,12 @@ class Word2Vec:
         return torch.matmul(self._W2, torch.matmul(self._W1, x))
 
     def similarity(self, word_idx1, word_idx2):
-        return torch.dot(self._W2[word_idx1], self._W2[word_idx2]) / (torch.norm(self._W2[word_idx1]) * torch.norm(self._W2[word_idx2]))
-
+        return torch.dot(self._W2[word_idx1], self._W2[word_idx2]) / (
+                    torch.norm(self._W2[word_idx1]) * torch.norm(self._W2[word_idx2]))
 
     def train(self, num_epochs, learning_rate, index_pairing, verbose=False):
-
         for epo in range(num_epochs):
             loss_val = 0
-            print(len(index_pairing))
             for data, target in index_pairing:
                 x = self.get_input_layer(data)
                 y_true = torch.tensor([target], device=self._device, dtype=torch.long)
