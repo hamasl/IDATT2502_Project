@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 import torch
 
@@ -15,7 +16,9 @@ if __name__ == '__main__':
     dictionary = keyword_dictionary.get()
     x = generalizer.handle_functions_and_variables(generalizer.handle_literals(x, dictionary), dictionary)
     word2idx, idx2word = vocab.create_vocabulary(x)
+    vocab.write_to_file(word2idx)
     x = vocab_pairing.index_pairing(x, word2idx)
+    np.save('data.npy', x)
     print(x)
     print(len(word2idx))
     word2vec_model = word2vec.Word2Vec(len(word2idx), word2idx)
