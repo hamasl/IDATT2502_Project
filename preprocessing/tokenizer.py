@@ -3,10 +3,10 @@ from io import BytesIO
 import tokenize as tn
 import re
 
+# NUMBER_OF_TYPES = 7
+# number_of_good_functions = 0
 
-
-
-def get_functions(filename, type_number):
+def get_functions(filename):
     """
     Input: File/filename to read and convert file into functions
     Uses regex, to find the functions start, and runs a while loop to find the closing curly bracket
@@ -19,11 +19,12 @@ def get_functions(filename, type_number):
         line = f.readline()
         while line and len(functions) < 2:
             brackets = 0
-            function = ""
+            function = ""   
             match = re.search("^\s*(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{", line)
             if(match and "main" not in line): 
-                if "bad" in line: function_types.append(type_number)
-                else: function_types.append(0) 
+                if "bad" in line: function_types.append(1)
+                else: 
+                    function_types.append(0) 
                 brackets += 1
                 function += line
 
@@ -95,10 +96,12 @@ def tokenize():
     dirname = os.path.join(os.path.dirname(__file__),"../formatted/")
     for index, folder in enumerate(os.listdir(os.path.join(dirname))):
         for file in os.listdir(os.path.join(dirname, folder)):
-            functions, types = get_functions(os.path.join(dirname, folder, file), index+1)
+            functions, types = get_functions(os.path.join(dirname, folder, file))
             y += types
             for tokenized in file_tokenize(functions):
                 x.append(tokenized)
+
     return x, y
+
 
         
