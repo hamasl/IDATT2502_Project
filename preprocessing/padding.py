@@ -13,7 +13,6 @@ def pad(inp, num_of_words):
 	"""
     max_len_row = len(max(inp, key=len))
     # Padded length must be multiple of 4
-    max_len_row += (max_len_row % 4)
     padded = torch.zeros((len(inp), max_len_row, num_of_words))
 
     for i in range(len(inp)):
