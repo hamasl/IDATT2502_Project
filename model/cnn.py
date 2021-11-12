@@ -69,9 +69,9 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         """
         Measures accuracy by taking in data elements, and the actual classes to those data points
         :param x: The data elements to be predicted.
-        :param y: The correct class for each data element
-        :param batch_size: The size of each batch
-        :return: torch.Tensor
+        :param y: The correct class for each data element.
+        :param batch_size: The size of each batch.
+        :return: float
         """
 
         accuracy = 0
@@ -82,14 +82,16 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                                             y_batches[i].to(self.device)).float()).to(self.device)
         return accuracy / len(x_batches)
 
-    def train_model(self, x_train: torch.Tensor, y_train: torch.Tensor, x_test, y_test, batches=600, epochs=5,
+    def train_model(self, x_train: torch.Tensor, y_train: torch.Tensor, x_test: torch.Tensor, y_test:torch.Tensor, batches=600, epochs=5,
                     learning_rate=0.001,
                     verbose=False):
         """
         Trains the model.
         :param x_train: The x values of the training data.
         :param y_train: The y values of the training data.
-        :param batches: The number of bathes that the data should be divided into.
+        :param x_test: The x values to be used in measuring accuracy.
+        :param y_test: The y values to be used in measuring accuracy.
+        :param batches: The number of bathes to be run for each epoch.
         :param epochs: The number of epochs that the data should be trained for.
         :param learning_rate: Decides how much the model "jump" for each time the data is being optimized. High learning rate may jump over minimas, while lower learning rate may get stuck a local minima.
         :param verbose: If the number of epochs completed should be printed to the console.
