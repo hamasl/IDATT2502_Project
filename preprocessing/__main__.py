@@ -16,7 +16,7 @@ from preprocessing.x_table import get_x_table
 
 if __name__ == '__main__':
     x, y = tokenize()
-    dictionary = keyword_dictionary.get()
+    dictionary = keyword_dictionary.get_keywords()
     x = generalizer.handle_functions_and_variables(generalizer.handle_literals(x, dictionary), dictionary)
     word2idx, idx2word = vocab.create_vocabulary(x)
     index_pairing = vocab_pairing.index_pairing(x, word2idx)

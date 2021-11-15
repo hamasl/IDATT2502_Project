@@ -30,11 +30,9 @@ def handle_literals(inp: [[str]], dictionary: [str]) -> [[str]]:
     return output
 
 
-# TODO add sc.BASE_CHAR and so on to dictionary
 def handle_functions_and_variables(inp: [[str]], dictionary: [str]) -> [[str]]:
     """
-    Converts function names to FUNC. Variable names are changed to ID0, ID1 ... When the same variable name is hit it is give the same ID.
-    When a new row is used the variable names are reset, and we start again at ID0, ID1 ...
+    Converts function names to FUNC. Variable names are changed to ID.
     :param inp: A 2d list where each row is a tokenized function.
     :param dictionary: The dictionary of keywords to avoid generalizing.
     :return: A copy of input but with each  converted literals.
@@ -46,13 +44,12 @@ def handle_functions_and_variables(inp: [[str]], dictionary: [str]) -> [[str]]:
     keywords.append(sc.BASE_STRING)
     for i in range(len(inp)):
         row = []
-        variable_names = []
         for j in range(len(inp[i])):
             if inp[i][j] not in keywords:
                 if len(inp[i]) > j + 1 and inp[i][j + 1] == "(":
                     row.append(sc.GENERIC_FUNCTION_NAME)
                 elif not inp[i][j].isdigit():
-                    row.append(sc.GENERIC_VARIABLE_BASE_NAME)
+                    row.append(sc.GENERIC_VARIABLE_NAME)
                 else:
                     row.append(inp[i][j])
             else:
