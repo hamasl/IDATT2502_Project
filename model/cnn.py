@@ -105,6 +105,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param x: The raw input of the x tensor
         :param y: The raw input of the y tensor
         :param batches: The number of bathes to be run for each epoch.
+        :param epochs: Number of epochs per cross validation
         :param cross_validations: The number of cross validations that the data should be trained for.
         :param learning_rate: Decides how much the model "jump" for each time the data is being optimized. High learning rate may jump over minimas, while lower learning rate may get stuck a local minima.
         :param verbose: If the number of epochs completed should be printed to the console.
