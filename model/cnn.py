@@ -97,7 +97,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         x_test, y_test = test_set[:][0], test_set[:][1]
         return x_train, y_train, x_test, y_test
 
-    def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, epochs=5,
+    def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, cross_validations=1,
                     learning_rate=0.001,
                     verbose=False):
         """
@@ -110,7 +110,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param verbose: If the number of epochs completed should be printed to the console.
         :return: None
         """
-        for cross_validation in range(5):
+        for cross_validation in range(cross_validations):
             x_train, y_train, x_test, y_test = self.split_data(x, y)
 
             # Divide training data into batches to speed up optimization
@@ -119,7 +119,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
 
             # Optimize: adjust W and b to minimize loss using stochastic gradient descent
             optimizer = torch.optim.Adam(self.parameters(), learning_rate)
-            for epoch in range(epochs):
+            for epoch in range(10):
                 for batch in range(len(x_train_batches)):
                     self.loss(x_train_batches[batch].to(self.device),
                               y_train_batches[batch].to(self.device)).backward()  # Compute loss gradients
@@ -129,7 +129,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                         param.grad = None
                 if verbose:
                     print(
-                        f"Completed {epoch + 1} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
+                        f"Completed {(epoch + 1)*(cross_validation+1)} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
 
     def save_model_state(self):
         """
