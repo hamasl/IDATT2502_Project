@@ -2,11 +2,12 @@ import os
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
     def __init__(self, num_of_classes: int, input_element_size: int, encoding_size_per_element: int,
-                 device=torch.device("cpu"), directory="state"):
+                 device=torch.device("cpu"), directory="state", classification_bias: Tensor = None):
         """
         Creates a model object using the given parameters.
 
@@ -20,6 +21,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self.encoding_size_per_element = encoding_size_per_element
         self.device = device
         self._dirname = os.path.join(os.path.dirname(__file__), directory)
+        # Does not matter if classifiaction_bias is none because cross entropy loss with None as weights behave as without weights.
+        self.classification_bias = classification_bias
 
         # Model layers (includes initialized model variables):
         self.logits = self._get_model()
@@ -61,8 +64,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param y: The y data.
         :return: Tensor containing the loss.
         """
-        # TODO add documentation
-        return nn.functional.cross_entropy(self.logits(x), y).to(self.device)
+        return nn.functional.cross_entropy(self.logits(x), y, weight=self.classification_bias).to(self.device)
 
     # Accuracy
     def accuracy(self, x: torch.Tensor, y: torch.Tensor, batch_size: int) -> float:
@@ -82,7 +84,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                                             y_batches[i].to(self.device)).float()).to(self.device)
         return accuracy / len(x_batches)
 
-    def train_model(self, x_train: torch.Tensor, y_train: torch.Tensor, x_test: torch.Tensor, y_test:torch.Tensor, batches=600, epochs=5,
+    def train_model(self, x_train: torch.Tensor, y_train: torch.Tensor, x_test: torch.Tensor, y_test: torch.Tensor,
+                    batches=600, epochs=5,
                     learning_rate=0.001,
                     verbose=False):
         """
@@ -133,6 +136,6 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             line = f.readline().split(",")
             self.num_of_classes = int(line[0])
             self.input_element_size = int(line[1])
-            self.encoding_size_per_element= int(line[2])
+            self.encoding_size_per_element = int(line[2])
         self.logits = self._get_model()
         self.load_state_dict(torch.load(os.path.join(self._dirname, "cnn_state.pth")))
