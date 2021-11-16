@@ -98,7 +98,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         return x_train, y_train, x_test, y_test
 
     def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, cross_validations=1,
-                    learning_rate=0.001,
+                    learning_rate=0.001, epochs=5,
                     verbose=False):
         """
         Trains the model.
@@ -119,7 +119,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
 
             # Optimize: adjust W and b to minimize loss using stochastic gradient descent
             optimizer = torch.optim.Adam(self.parameters(), learning_rate)
-            for epoch in range(10):
+            for epoch in range(epochs):
                 for batch in range(len(x_train_batches)):
                     self.loss(x_train_batches[batch].to(self.device),
                               y_train_batches[batch].to(self.device)).backward()  # Compute loss gradients
