@@ -65,7 +65,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param y: The y data.
         :return: Tensor containing the loss.
         """
-        return nn.functional.cross_entropy(self.logits(x), y, weight=self.classification_bias).to(self.device)
+        return nn.functional.cross_entropy(self.logits(x), y, weight=self.classification_bias.to(self.device)).to(self.device)
 
     # Accuracy
     def accuracy(self, x: torch.Tensor, y: torch.Tensor, batch_size: int) -> float:

@@ -13,6 +13,8 @@ from preprocessing.similarity_table import get_similarity_table
 from preprocessing.padding import pad
 from preprocessing.x_table import get_x_table
 
+def process(file_path):
+    
 
 if __name__ == '__main__':
     x, y = tokenize()

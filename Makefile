@@ -11,3 +11,6 @@ run_preprocessing:
 
 run_model:
 	python3 -m model
+
+predict:
+	python3 -m app $(file_path)
