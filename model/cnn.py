@@ -1,12 +1,14 @@
 import os
-
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
+from torch import Tensor
+from torch.utils.data import random_split, TensorDataset
 
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
     def __init__(self, num_of_classes: int, input_element_size: int, encoding_size_per_element: int,
-                 device=torch.device("cpu"), directory="state"):
+                 device=torch.device("cpu"), directory="state", classification_bias: Tensor = None):
         """
         Creates a model object using the given parameters.
 
@@ -20,6 +22,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self.encoding_size_per_element = encoding_size_per_element
         self.device = device
         self._dirname = os.path.join(os.path.dirname(__file__), directory)
+        # Does not matter if classifiaction_bias is none because cross entropy loss with None as weights behave as without weights.
+        self.classification_bias = classification_bias
 
         # Model layers (includes initialized model variables):
         self.logits = self._get_model()
@@ -61,8 +65,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param y: The y data.
         :return: Tensor containing the loss.
         """
-        # TODO add documentation
-        return nn.functional.cross_entropy(self.logits(x), y).to(self.device)
+        return nn.functional.cross_entropy(self.logits(x), y, weight=self.classification_bias).to(self.device)
 
     # Accuracy
     def accuracy(self, x: torch.Tensor, y: torch.Tensor, batch_size: int) -> float:
@@ -82,38 +85,81 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                                             y_batches[i].to(self.device)).float()).to(self.device)
         return accuracy / len(x_batches)
 
-    def train_model(self, x_train: torch.Tensor, y_train: torch.Tensor, x_test: torch.Tensor, y_test:torch.Tensor, batches=600, epochs=5,
-                    learning_rate=0.001,
-                    verbose=False):
+    def false_positive_vs_false_negative(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
+        false_positives = [0] * self.num_of_classes
+        false_negatives = [0] * self.num_of_classes
+
+        x_batches = torch.split(x, batch_size)
+        y_batches = torch.split(y, batch_size)
+        for i in range(len(x_batches)):
+            predictions = self.f(x_batches[i].to(self.device)).argmax(1).to(self.device)
+            for j in range(len(predictions)):
+                pred = predictions[j].item()
+                ans = y_batches[i][j].item()
+                if pred != ans:
+                    false_positives[pred] += 1
+                    false_negatives[ans] += 1
+        return false_positives, false_negatives
+
+    def split_data(self, x: torch.Tensor, y: torch.Tensor):
+        """
+        Splits the data into train and test set
+        :param x: The x tensor, with padded word2vec vectors
+        :param y: The y tensor, with classes
+        """
+        data_set = TensorDataset(x, y)
+        train_set_size = int(len(x) * 0.8)
+        valid_set_size = len(x) - train_set_size
+        train_set, test_set = random_split(data_set, [train_set_size, valid_set_size])
+        x_train, y_train = train_set[:][0], train_set[:][1]
+        x_test, y_test = test_set[:][0], test_set[:][1]
+        return x_train, y_train, x_test, y_test
+
+    def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, cross_validations=1,
+                    learning_rate=0.001, epochs=5, verbose=False):
         """
         Trains the model.
-        :param x_train: The x values of the training data.
-        :param y_train: The y values of the training data.
-        :param x_test: The x values to be used in measuring accuracy.
-        :param y_test: The y values to be used in measuring accuracy.
+        :param x: The raw input of the x tensor
+        :param y: The raw input of the y tensor
         :param batches: The number of bathes to be run for each epoch.
-        :param epochs: The number of epochs that the data should be trained for.
+        :param epochs: Number of epochs per cross validation
+        :param cross_validations: The number of cross validations that the data should be trained for.
         :param learning_rate: Decides how much the model "jump" for each time the data is being optimized. High learning rate may jump over minimas, while lower learning rate may get stuck a local minima.
         :param verbose: If the number of epochs completed should be printed to the console.
         :return: None
         """
-        # Divide training data into batches to speed up optimization
-        x_train_batches = torch.split(x_train, batches)
-        y_train_batches = torch.split(y_train, batches)
+        for cross_validation in range(cross_validations):
+            x_train, y_train, x_test, y_test = self.split_data(x, y)
 
-        # Optimize: adjust W and b to minimize loss using stochastic gradient descent
-        optimizer = torch.optim.Adam(self.parameters(), learning_rate)
-        for epoch in range(epochs):
-            for batch in range(len(x_train_batches)):
-                self.loss(x_train_batches[batch].to(self.device),
-                          y_train_batches[batch].to(self.device)).backward()  # Compute loss gradients
-                optimizer.step()  # Perform optimization by adjusting W and b,
-                # Is faster than optimizer.zero_grad: https://betterprogramming.pub/how-to-make-your-pytorch-code-run-faster-93079f3c1f7b
-                for param in self.parameters():
-                    param.grad = None
-            if verbose:
-                print(
-                    f"Completed {epoch + 1} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
+            # Divide training data into batches to speed up optimization
+            x_train_batches = torch.split(x_train, batches)
+            y_train_batches = torch.split(y_train, batches)
+
+            # Optimize: adjust W and b to minimize loss using stochastic gradient descent
+            optimizer = torch.optim.Adam(self.parameters(), learning_rate)
+            for epoch in range(epochs):
+                for batch in range(len(x_train_batches)):
+                    self.loss(x_train_batches[batch].to(self.device),
+                              y_train_batches[batch].to(self.device)).backward()  # Compute loss gradients
+                    optimizer.step()  # Perform optimization by adjusting W and b,
+                    # Is faster than optimizer.zero_grad: https://betterprogramming.pub/how-to-make-your-pytorch-code-run-faster-93079f3c1f7b
+                    for param in self.parameters():
+                        param.grad = None
+                if verbose:
+                    print(
+                        f"Completed {(epoch + 1) + (cross_validation * epochs)} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
+        x_train, y_train, x_test, y_test = self.split_data(x, y)
+        false_positives, false_negatives = self.false_positive_vs_false_negative(x_test, y_test, 100)
+        fig, axs = plt.subplots(1, len(false_negatives), sharey=True)
+        # fig.title("FP vs FN grouped by class.")
+        for i in range(len(false_negatives)):
+            total = false_positives[i] + false_negatives[i]
+            axs[i].title.set_text(i)
+            axs[i].bar("FP", 100 * false_positives[i] / total, color="blue", label="FP = False positive")
+            axs[i].bar("FN", 100 * false_negatives[i] / total, color="orange", label="FN = False negative")
+        handles, labels = axs[len(false_negatives) - 1].get_legend_handles_labels()
+        fig.legend(handles, labels, loc='upper center')
+        plt.show()
 
     def save_model_state(self):
         """
@@ -133,6 +179,6 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             line = f.readline().split(",")
             self.num_of_classes = int(line[0])
             self.input_element_size = int(line[1])
-            self.encoding_size_per_element= int(line[2])
+            self.encoding_size_per_element = int(line[2])
         self.logits = self._get_model()
         self.load_state_dict(torch.load(os.path.join(self._dirname, "cnn_state.pth")))
