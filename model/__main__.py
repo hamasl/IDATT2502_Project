@@ -16,4 +16,4 @@ if __name__ == '__main__':
     classification_bias[0] = 1
     mod = cnn.ConvolutionalNeuralNetworkModel(int(torch.max(y).item()) + 1, x.shape[2], x.shape[3], classification_bias=classification_bias)
     mod.train_model(x, y, batches=50, cross_validations=1, epochs=1, verbose=True)
-    #mod.save_model_state()
+    mod.save_model_state()

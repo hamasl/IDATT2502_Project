@@ -1,4 +1,5 @@
 import os
+import sys
 from io import BytesIO
 import tokenize as tn
 import re
@@ -9,11 +10,12 @@ class Tokenizer:
         self.number_of_types = number_of_types
         self.number_of_good_functions = 0
 
-    def get_functions(self, filename: str, function_array_len: int, class_number: int):
+    def get_functions(self, filename: str, function_array_len: int, class_number: int, num_of_functions: int = sys.maxsize):
         """
         Uses regex, to find the functions start, and runs a while loop to find the closing curly bracket
         Only parses one bad function and one good function before it returns
 
+        :param num_of_functions: The number of functions to gather from a file
         :param filename: name of the C file
         :param function_array_len: length of the current array of tokenized functions
         :param class_number: number of classes
@@ -24,7 +26,7 @@ class Tokenizer:
         with open(filename, 'r') as f:
             line = f.readline()
             # Only get two functions from each file
-            while line and len(functions) < 2:
+            while line and len(functions) < num_of_functions:
                 brackets = 0
                 function = ""
                 match = re.search(
@@ -111,7 +113,7 @@ class Tokenizer:
         dirname = os.path.join(os.path.dirname(__file__), "../formatted/")
         for index, folder in enumerate(os.listdir(os.path.join(dirname))):
             for file in os.listdir(os.path.join(dirname, folder)):
-                functions, types = self.get_functions(os.path.join(dirname, folder, file), len(y), index+1)
+                functions, types = self.get_functions(os.path.join(dirname, folder, file), len(y), index+1, num_of_functions=2)
                 y += types
                 for tokenized in self.file_tokenize(functions):
                     x.append(tokenized)
