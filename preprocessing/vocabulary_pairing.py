@@ -24,5 +24,5 @@ def index_pairing(function_list: [[]], word2idx_dict: dict, window_size=2):
                     continue
 
                 idx_pairs.append((indices[center_word_pos], indices[context_word_pos]))
-
+    print(f"Number of index pairs: {len(idx_pairs)}")
     return np.array(idx_pairs)
