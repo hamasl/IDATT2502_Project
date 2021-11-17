@@ -8,7 +8,6 @@ class SplitTest(unittest.TestCase):
 
     def test_correct_splitting(self):
         input_size = 24
-        num_of_elements = 600
         element_encoding = 20
         model = cnn.ConvolutionalNeuralNetworkModel(10, input_size, element_encoding)
         input_x = torch.tensor([1, 2, 3, 4, 5, 6])

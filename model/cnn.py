@@ -2,12 +2,13 @@ import os
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
+from torch import Tensor
 from torch.utils.data import random_split, TensorDataset
 
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
     def __init__(self, num_of_classes: int, input_element_size: int, encoding_size_per_element: int,
-                 device=torch.device("cpu"), directory="state"):
+                 device=torch.device("cpu"), directory="state", classification_bias: Tensor = None):
         """
         Creates a model object using the given parameters.
 
@@ -21,6 +22,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self.encoding_size_per_element = encoding_size_per_element
         self.device = device
         self._dirname = os.path.join(os.path.dirname(__file__), directory)
+        # Does not matter if classifiaction_bias is none because cross entropy loss with None as weights behave as without weights.
+        self.classification_bias = classification_bias
 
         # Model layers (includes initialized model variables):
         self.logits = self._get_model()
@@ -62,8 +65,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param y: The y data.
         :return: Tensor containing the loss.
         """
-        # TODO add documentation
-        return nn.functional.cross_entropy(self.logits(x), y).to(self.device)
+        return nn.functional.cross_entropy(self.logits(x), y, weight=self.classification_bias).to(self.device)
 
     # Accuracy
     def accuracy(self, x: torch.Tensor, y: torch.Tensor, batch_size: int) -> float:
@@ -114,8 +116,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         return x_train, y_train, x_test, y_test
 
     def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, cross_validations=1,
-                    learning_rate=0.001, epochs=5,
-                    verbose=False):
+                    learning_rate=0.001, epochs=5, verbose=False):
         """
         Trains the model.
         :param x: The raw input of the x tensor
