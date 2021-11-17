@@ -1,9 +1,9 @@
 import os
-import numpy as np
 
 import torch
+import numpy as np
 
-from preprocessing.tokenizer import tokenize
+import preprocessing.tokenizer as tokenizer
 import preprocessing.keyword_dictionary as keyword_dictionary
 import preprocessing.generalizer as generalizer
 import preprocessing.vocabulary as vocab
@@ -13,18 +13,21 @@ from preprocessing.similarity_table import get_similarity_table
 from preprocessing.padding import pad
 from preprocessing.x_table import get_x_table
 
+import matplotlib.pyplot as plt
+
 
 if __name__ == '__main__':
-    x, y = tokenize()
+    tkn = tokenizer.Tokenizer(13)
+    x, y = tkn.tokenize()
     dictionary = keyword_dictionary.get_keywords()
     x = generalizer.handle_functions_and_variables(generalizer.handle_literals(x, dictionary), dictionary)
     word2idx, idx2word = vocab.create_vocabulary(x)
     index_pairing = vocab_pairing.index_pairing(x, word2idx)
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
     print(f"Running on: {device}")
     word2vec_model = word2vec.Word2Vec(len(word2idx), word2idx, device)
     print("Training word2vec model:")
-    word2vec_model.train(1, 0.0001, index_pairing, verbose=True)
+    word2vec_model.train(1, 0.015, index_pairing, verbose=True)
     print("Completed word2vec training")
     similarity_table = get_similarity_table(len(word2idx), word2vec_model)
     x = get_x_table(x, similarity_table, word2idx)
@@ -33,5 +36,16 @@ if __name__ == '__main__':
     x = torch.reshape(x, (x_shape[0], 1, x_shape[1], x_shape[2]))
     y = torch.LongTensor(y).reshape(len(y))
     dirname = os.path.join(os.path.dirname(__file__), "../processed")
-    torch.save(x, os.path.join(dirname, "x.pt"))
-    torch.save(y, os.path.join(dirname, "y.pt"))
+    torch.save(x, os.path.join(dirname, "x4.pt"))
+    torch.save(y, os.path.join(dirname, "y4.pt"))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    similarity_table = np.array(similarity_table)
+    ax.scatter(similarity_table[:, 0], similarity_table[:, 1])
+    #for (x, y) in similarity_table:
+    #    ax.annotate('%s' % idx2word[x], textcoords='data')
+    ax.title("Word2Vec")
+    ax.xlabel("X-value")
+    ax.ylabel("Y-value")
+    plt.show()
