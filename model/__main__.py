@@ -9,5 +9,5 @@ if __name__ == '__main__':
     x = torch.load(os.path.join(dirname, "x.pt"))
     y = torch.load(os.path.join(dirname, "y.pt"))
     mod = cnn.ConvolutionalNeuralNetworkModel(int(torch.max(y).item()) + 1, x.shape[2], x.shape[3])
-    mod.train_model(x, y, 50, 1, verbose=True)
+    mod.train_model(x, y, 50, cross_validations=0, verbose=True, epochs=0)
     mod.save_model_state()

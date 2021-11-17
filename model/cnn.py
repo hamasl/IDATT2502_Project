@@ -1,5 +1,5 @@
 import os
-
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 from torch.utils.data import random_split, TensorDataset
@@ -83,6 +83,22 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                                             y_batches[i].to(self.device)).float()).to(self.device)
         return accuracy / len(x_batches)
 
+    def false_positive_vs_false_negative(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
+        false_positives = [0] * self.num_of_classes
+        false_negatives = [0] * self.num_of_classes
+
+        x_batches = torch.split(x, batch_size)
+        y_batches = torch.split(y, batch_size)
+        for i in range(len(x_batches)):
+            predictions = self.f(x_batches[i].to(self.device)).argmax(1).to(self.device)
+            for j in range(len(predictions)):
+                pred = predictions[j].item()
+                ans = y_batches[i][j].item()
+                if pred != ans:
+                    false_positives[pred] += 1
+                    false_negatives[ans] += 1
+        return false_positives, false_negatives
+
     def split_data(self, x: torch.Tensor, y: torch.Tensor):
         """
         Splits the data into train and test set
@@ -130,7 +146,19 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                         param.grad = None
                 if verbose:
                     print(
-                        f"Completed {(epoch + 1)*(cross_validation+1)} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
+                        f"Completed {(epoch + 1) + (cross_validation * epochs)} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
+        x_train, y_train, x_test, y_test = self.split_data(x, y)
+        false_positives, false_negatives = self.false_positive_vs_false_negative(x_test, y_test, 100)
+        fig, axs = plt.subplots(1, len(false_negatives), sharey=True)
+        # fig.title("FP vs FN grouped by class.")
+        for i in range(len(false_negatives)):
+            total = false_positives[i] + false_negatives[i]
+            axs[i].title.set_text(i)
+            axs[i].bar("FP", 100 * false_positives[i] / total, color="blue", label="FP = False positive")
+            axs[i].bar("FN", 100 * false_negatives[i] / total, color="orange", label="FN = False negative")
+        handles, labels = axs[len(false_negatives) - 1].get_legend_handles_labels()
+        fig.legend(handles, labels, loc='upper center')
+        plt.show()
 
     def save_model_state(self):
         """
@@ -150,6 +178,6 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             line = f.readline().split(",")
             self.num_of_classes = int(line[0])
             self.input_element_size = int(line[1])
-            self.encoding_size_per_element= int(line[2])
+            self.encoding_size_per_element = int(line[2])
         self.logits = self._get_model()
         self.load_state_dict(torch.load(os.path.join(self._dirname, "cnn_state.pth")))
