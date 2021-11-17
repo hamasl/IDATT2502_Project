@@ -1,7 +1,6 @@
 import os
 
 import torch
-import numpy as np
 
 import preprocessing.tokenizer as tokenizer
 import preprocessing.keyword_dictionary as keyword_dictionary
@@ -12,8 +11,6 @@ import preprocessing.word2vec as word2vec
 from preprocessing.similarity_table import get_similarity_table
 from preprocessing.padding import pad
 from preprocessing.x_table import get_x_table
-
-import matplotlib.pyplot as plt
 
 
 if __name__ == '__main__':
@@ -36,16 +33,5 @@ if __name__ == '__main__':
     x = torch.reshape(x, (x_shape[0], 1, x_shape[1], x_shape[2]))
     y = torch.LongTensor(y).reshape(len(y))
     dirname = os.path.join(os.path.dirname(__file__), "../processed")
-    torch.save(x, os.path.join(dirname, "x4.pt"))
-    torch.save(y, os.path.join(dirname, "y4.pt"))
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    similarity_table = np.array(similarity_table)
-    ax.scatter(similarity_table[:, 0], similarity_table[:, 1])
-    #for (x, y) in similarity_table:
-    #    ax.annotate('%s' % idx2word[x], textcoords='data')
-    ax.title("Word2Vec")
-    ax.xlabel("X-value")
-    ax.ylabel("Y-value")
-    plt.show()
+    torch.save(x, os.path.join(dirname, "x.pt"))
+    torch.save(y, os.path.join(dirname, "y.pt"))
