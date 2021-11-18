@@ -8,7 +8,7 @@ from torch.utils.data import random_split, TensorDataset
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
     def __init__(self, num_of_classes: int, input_element_size: int, encoding_size_per_element: int,
-                 device=torch.device("cpu"), directory="state", classification_bias: Tensor = None):
+                 device=torch.device("cpu"), directory="state", class_names: str = None, classification_bias: Tensor = None):
         """
         Creates a model object using the given parameters.
 
@@ -24,6 +24,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self._dirname = os.path.join(os.path.dirname(__file__), directory)
         # Does not matter if classifiaction_bias is none because cross entropy loss with None as weights behave as without weights.
         self.classification_bias = classification_bias
+        self.class_names = class_names
 
         # Model layers (includes initialized model variables):
         self.logits = self._get_model()
@@ -115,13 +116,13 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         x_test, y_test = test_set[:][0], test_set[:][1]
         return x_train, y_train, x_test, y_test
 
-    def train_model(self, x: torch.Tensor, y: torch.Tensor, batches=600, cross_validations=1,
+    def train_model(self, x: torch.Tensor, y: torch.Tensor, batch_size=600, cross_validations=1,
                     learning_rate=0.001, epochs=5, verbose=False):
         """
         Trains the model.
         :param x: The raw input of the x tensor
         :param y: The raw input of the y tensor
-        :param batches: The number of bathes to be run for each epoch.
+        :param batch_size: The number of bathes to be run for each epoch.
         :param epochs: Number of epochs per cross validation
         :param cross_validations: The number of cross validations that the data should be trained for.
         :param learning_rate: Decides how much the model "jump" for each time the data is being optimized. High learning rate may jump over minimas, while lower learning rate may get stuck a local minima.
@@ -132,8 +133,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             x_train, y_train, x_test, y_test = self.split_data(x, y)
 
             # Divide training data into batches to speed up optimization
-            x_train_batches = torch.split(x_train, batches)
-            y_train_batches = torch.split(y_train, batches)
+            x_train_batches = torch.split(x_train, batch_size)
+            y_train_batches = torch.split(y_train, batch_size)
 
             # Optimize: adjust W and b to minimize loss using stochastic gradient descent
             optimizer = torch.optim.Adam(self.parameters(), learning_rate)
@@ -154,11 +155,11 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         # fig.title("FP vs FN grouped by class.")
         for i in range(len(false_negatives)):
             total = false_positives[i] + false_negatives[i]
-            axs[i].title.set_text(i)
+            axs[i].title.set_text(i if self.class_names is None else self.class_names[i])
             axs[i].bar("FP", 100 * false_positives[i] / total, color="blue", label="FP = False positive")
             axs[i].bar("FN", 100 * false_negatives[i] / total, color="orange", label="FN = False negative")
         handles, labels = axs[len(false_negatives) - 1].get_legend_handles_labels()
-        fig.legend(handles, labels, loc='upper center')
+        fig.legend(handles, labels, loc='lower right')
         plt.show()
 
     def save_model_state(self):

@@ -23,16 +23,20 @@ class Tokenizer:
         """
         functions = []
         function_types = []
+        function_names = []
+        print(filename)
         with open(filename, 'r') as f:
             line = f.readline()
             # Only get two functions from each file
             while line and len(functions) < num_of_functions:
+                print(line)
                 brackets = 0
                 function = ""
                 match = re.search(
                     "^\s*(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{",
                     line)
                 if match and "main" not in line:
+                    function_names.append(line[:-2])
                     if "bad" in line:
                         function_types.append(class_number)
                     # Get only 1/NUMBER_OF_TYPES good functions
@@ -57,7 +61,7 @@ class Tokenizer:
                     functions.append(function)
                 line = f.readline()
             if len(functions) != len(function_types): raise Exception("Number of functions not equal number of types")
-            return functions, function_types
+            return functions, function_types, function_names
 
     def file_tokenize(self, function_array: [[]]):
         """

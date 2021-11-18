@@ -41,3 +41,4 @@ def read_from_file():
         reader = csv.reader(file)
         for row in reader:
             dictionary[row[0]] = row[1]
+    return dictionary

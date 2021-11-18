@@ -8,26 +8,27 @@ import preprocessing.generalizer as generalizer
 import preprocessing.vocabulary as vocab
 import preprocessing.vocabulary_pairing as vocab_pairing
 import preprocessing.word2vec as word2vec
-from preprocessing.similarity_table import get_similarity_table
+import preprocessing.similarity_table as sim_table
 from preprocessing.padding import pad
 from preprocessing.x_table import get_x_table
+
 
 def pre_process_predict(file_path: str):
     tkn = tokenizer.Tokenizer(0)
     x = []
-    functions, _ = tkn.get_functions(file_path, 0, 0)
+    functions, _, function_names = tkn.get_functions(file_path, 0, 0)
+    print(functions)
     for tokenized in tkn.file_tokenize(functions):
         x.append(tokenized)
     dictionary = keyword_dictionary.get_keywords()
+    print(x)
     x = generalizer.handle_functions_and_variables(generalizer.handle_literals(x, dictionary), dictionary)
     word2idx = vocab.read_from_file()
-    sim_table = read_similarity_table()
-    x = get_x_table(x, sim_table)
+    similarity_table = sim_table.read_from_file()
+    x = get_x_table(x, similarity_table, word2idx)
     x = pad(x, len(word2idx))
     x_shape = x.shape
-    return torch.reshape(x, (x_shape[0], 1, x_shape[1], x_shape[2]))
-
-
+    return torch.reshape(x, (x_shape[0], 1, x_shape[1], x_shape[2])), function_names
 
 
 def pre_process_train():
@@ -44,8 +45,8 @@ def pre_process_train():
     print("Training word2vec model:")
     word2vec_model.train(1, 0.015, index_pairing, verbose=True)
     print("Completed word2vec training")
-    similarity_table = get_similarity_table(len(word2idx), word2vec_model)
-    write_similarity_table(similarity_table)
+    similarity_table = sim_table.get_similarity_table(len(word2idx), word2vec_model)
+    sim_table.write_to_file(similarity_table)
     x = get_x_table(x, similarity_table, word2idx)
     x = pad(x, len(word2idx))
     x_shape = x.shape
@@ -55,7 +56,6 @@ def pre_process_train():
     torch.save(x, os.path.join(dirname, "x.pt"))
     torch.save(y, os.path.join(dirname, "y.pt"))
 
-    
 
 if __name__ == '__main__':
     pre_process_train()

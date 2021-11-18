@@ -13,4 +13,5 @@ run_model:
 	python3 -m model
 
 predict:
-	python3 -m app $(file_path)
+	clang-format $(file_path) > $(file_path).formatted
+	python3 -m app $(file_path).formatted
