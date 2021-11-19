@@ -28,7 +28,7 @@ def write_to_file(table: [[float]]):
     """
     Writes a dictionary to file
 
-    :param dictionary: Dictionary containing words and their corresponding index
+    :param table: list of similarities
     """
 
     csv_file = "state/similarity_table.csv"
@@ -44,5 +44,5 @@ def read_from_file():
     with open(os.path.join(os.path.dirname(__file__), csv_file), 'r') as file:
         reader = csv.reader(file)
         for row in reader:
-            table.append(row)
+            table.append(list(map(float, row)))
     return table

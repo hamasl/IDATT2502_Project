@@ -182,4 +182,4 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             self.input_element_size = int(line[1])
             self.encoding_size_per_element = int(line[2])
         self.logits = self._get_model()
-        self.load_state_dict(torch.load(os.path.join(self._dirname, "cnn_state.pth")))
+        self.load_state_dict(torch.load(os.path.join(self._dirname, "cnn_state.pth"), map_location=self.device))

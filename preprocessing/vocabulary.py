@@ -40,5 +40,5 @@ def read_from_file():
     with open(os.path.join(os.path.dirname(__file__), csv_file), 'r') as file:
         reader = csv.reader(file)
         for row in reader:
-            dictionary[row[0]] = row[1]
+            dictionary[row[0]] = int(row[1])
     return dictionary

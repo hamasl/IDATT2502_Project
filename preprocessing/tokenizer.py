@@ -10,11 +10,12 @@ class Tokenizer:
         self.number_of_types = number_of_types
         self.number_of_good_functions = 0
 
-    def get_functions(self, filename: str, function_array_len: int, class_number: int, num_of_functions: int = sys.maxsize):
+    def get_functions(self, filename: str, function_array_len: int, class_number: int, num_of_functions: int = sys.maxsize, ignore_main: bool = True):
         """
         Uses regex, to find the functions start, and runs a while loop to find the closing curly bracket
         Only parses one bad function and one good function before it returns
 
+        :param ignore_main: boolean value to ignore main or not
         :param num_of_functions: The number of functions to gather from a file
         :param filename: name of the C file
         :param function_array_len: length of the current array of tokenized functions
@@ -24,19 +25,17 @@ class Tokenizer:
         functions = []
         function_types = []
         function_names = []
-        print(filename)
         with open(filename, 'r') as f:
             line = f.readline()
-            # Only get two functions from each file
+            # Only get a certain number of functions from each file
             while line and len(functions) < num_of_functions:
-                print(line)
                 brackets = 0
                 function = ""
                 match = re.search(
                     "^\s*(unsigned|signed|static)?\s*(void|int|char|short|long|float|double)\s+(\w+)\([^)]*\)\s+{",
                     line)
-                if match and "main" not in line:
-                    function_names.append(line[:-2])
+                if match and ("main" not in line or not ignore_main):
+                    function_names.append(line[:-3])
                     if "bad" in line:
                         function_types.append(class_number)
                     # Get only 1/NUMBER_OF_TYPES good functions
@@ -116,8 +115,9 @@ class Tokenizer:
         y = []
         dirname = os.path.join(os.path.dirname(__file__), "../formatted/")
         for index, folder in enumerate(os.listdir(os.path.join(dirname))):
+            print(folder)
             for file in os.listdir(os.path.join(dirname, folder)):
-                functions, types = self.get_functions(os.path.join(dirname, folder, file), len(y), index+1, num_of_functions=2)
+                functions, types, _ = self.get_functions(os.path.join(dirname, folder, file), len(y), index+1, num_of_functions=2)
                 y += types
                 for tokenized in self.file_tokenize(functions):
                     x.append(tokenized)
