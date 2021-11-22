@@ -2,8 +2,11 @@ import os
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
+from preprocessing.class_names import class_names
 from torch import Tensor
 from torch.utils.data import random_split, TensorDataset
+from sklearn.metrics import confusion_matrix as cm
+from sklearn.metrics import ConfusionMatrixDisplay
 
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
@@ -83,7 +86,28 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         for i in range(len(x_batches)):
             accuracy += torch.mean(torch.eq(self.f(x_batches[i].to(self.device)).argmax(1).to(self.device),
                                             y_batches[i].to(self.device)).float()).to(self.device)
+
         return accuracy / len(x_batches)
+
+    def confusion_matrix(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
+        """
+        Creates a confusion matrix from the predictions and the labels
+        :param x: The data elements to be predicted.
+        :param y: The correct class for each data element.
+        :param batch_size: The size of each batch.
+        :return: confusion matrix
+        """
+        predicted_answer = torch.tensor([])
+        x_batches = torch.split(x, batch_size)
+        y_batches = torch.split(y, batch_size)
+        for i in range(len(x_batches)):
+            batch_predict = self.f(x_batches[i].to(self.device)).argmax(1).to(torch.device("cpu"))
+            predicted_answer = torch.cat((predicted_answer, batch_predict), 0)
+        ConfusionMatrixDisplay.from_predictions(y.to(torch.device("cpu")), predicted_answer, display_labels=class_names,
+                                                normalize='true', xticks_rotation='vertical')
+        plt.show()
+        c_matrix = cm(y.to(torch.device("cpu")), predicted_answer)
+        return c_matrix / c_matrix.astype(torch.float).sum(axis=1)
 
     def false_positive_vs_false_negative(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
         false_positives = [0] * self.num_of_classes
