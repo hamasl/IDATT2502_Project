@@ -1,4 +1,5 @@
 import csv
+import os.path
 
 
 def create_vocabulary(functions_list: [[]]):
@@ -25,8 +26,19 @@ def write_to_file(dictionary: dict):
 
     :param dictionary: Dictionary containing words and their corresponding index
     """
-    csv_file = "word2vec.csv"
-    with open(csv_file, 'w') as file:
+
+    csv_file = "state/vocab.csv"
+    with open(os.path.join(os.path.dirname(__file__), csv_file), 'w') as file:
         writer = csv.writer(file)
         for key, value in dictionary.items():
             writer.writerow([key, value])
+
+
+def read_from_file():
+    dictionary = {}
+    csv_file = "state/vocab.csv"
+    with open(os.path.join(os.path.dirname(__file__), csv_file), 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            dictionary[row[0]] = int(row[1])
+    return dictionary

@@ -1,7 +1,10 @@
+import csv
+import os
+
 from preprocessing.word2vec import Word2Vec
 
 
-def get_similarity_table(num_of_words, model: Word2Vec) -> [[int]]:
+def get_similarity_table(num_of_words, model: Word2Vec) -> [[float]]:
     """
     Creates a table consisting where each row and column represents a word.
     An entry containing the similarity between the word at its row index and column index.
@@ -19,3 +22,27 @@ def get_similarity_table(num_of_words, model: Word2Vec) -> [[int]]:
                 row.append(model.similarity(i, j).item())
         word_similarities.append(row)
     return word_similarities
+
+
+def write_to_file(table: [[float]]):
+    """
+    Writes a dictionary to file
+
+    :param table: list of similarities
+    """
+
+    csv_file = "state/similarity_table.csv"
+    with open(os.path.join(os.path.dirname(__file__), csv_file), 'w') as file:
+        writer = csv.writer(file)
+        for row in table:
+            writer.writerow(row)
+
+
+def read_from_file():
+    table = []
+    csv_file = "state/similarity_table.csv"
+    with open(os.path.join(os.path.dirname(__file__), csv_file), 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            table.append(list(map(float, row)))
+    return table
