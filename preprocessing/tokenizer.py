@@ -115,7 +115,6 @@ class Tokenizer:
         y = []
         dirname = os.path.join(os.path.dirname(__file__), "../formatted/")
         for index, folder in enumerate(os.listdir(os.path.join(dirname))):
-            print(folder)
             for file in os.listdir(os.path.join(dirname, folder)):
                 functions, types, _ = self.get_functions(os.path.join(dirname, folder, file), len(y), index+1, num_of_functions=2)
                 y += types
