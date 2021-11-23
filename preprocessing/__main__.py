@@ -32,7 +32,7 @@ def pre_process_train():
     x, y = tkn.tokenize()
     dictionary = keyword_dictionary.get_keywords()
     x = generalizer.handle_functions_and_variables(generalizer.handle_literals(x, dictionary), dictionary)
-    word2idx, _ = vocab.create_vocabulary(x)
+    word2idx = vocab.create_vocabulary(x)
     vocab.write_to_file(word2idx)
     index_pairing = vocab_pairing.index_pairing(x, word2idx)
     device = torch.device("cpu")
