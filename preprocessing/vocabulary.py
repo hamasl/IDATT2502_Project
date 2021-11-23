@@ -1,4 +1,5 @@
 import csv
+import os.path
 
 
 def create_vocabulary(functions_list: [[]]):
@@ -11,12 +12,12 @@ def create_vocabulary(functions_list: [[]]):
     vocabulary = []
     for function in functions_list:
         for token in function:
-            if token not in vocabulary: vocabulary.append(token)
+            if token not in vocabulary:
+                vocabulary.append(token)
 
     word2idx = {w: idx for (idx, w) in enumerate(vocabulary)}
-    idx2word = {idx: w for (idx, w) in enumerate(vocabulary)}
 
-    return word2idx, idx2word
+    return word2idx, vocabulary
 
 
 def write_to_file(dictionary: dict):
@@ -25,8 +26,24 @@ def write_to_file(dictionary: dict):
 
     :param dictionary: Dictionary containing words and their corresponding index
     """
-    csv_file = "word2vec.csv"
-    with open(csv_file, 'w') as file:
+
+    csv_file = "state/vocab.csv"
+    with open(os.path.join(os.path.dirname(__file__), csv_file), 'w') as file:
         writer = csv.writer(file)
         for key, value in dictionary.items():
             writer.writerow([key, value])
+
+
+def read_from_file():
+    """
+    Reads vocabulary from file and returns it as dictionary
+
+    :return: Dictionary
+    """
+    dictionary = {}
+    csv_file = "state/vocab.csv"
+    with open(os.path.join(os.path.dirname(__file__), csv_file), 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            dictionary[row[0]] = int(row[1])
+    return dictionary

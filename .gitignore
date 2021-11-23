@@ -6,4 +6,6 @@ formatted/
 .vscode
 data/
 processed/
-state
+preprocessing/state
+test_c_files
+test.c

@@ -1,4 +1,6 @@
 # Implementation inspired by: https://towardsdatascience.com/implementing-word2vec-in-pytorch-skip-gram-model-e6bae040d2fb
+import os
+
 import torch
 from torch.nn.functional import log_softmax, nll_loss
 from tqdm import tqdm
@@ -39,9 +41,8 @@ class Word2Vec:
         :param word_idx2: The index of word2.
         :return: Int between 1 and -1, where 1 i equal.
         """
-        w1v = torch.matmul(self._W2, torch.matmul(self._W1, self.get_input_layer(word_idx1)))
-        w2v = torch.matmul(self._W2, torch.matmul(self._W1, self.get_input_layer(word_idx2)))
-        return torch.dot(w1v, w2v) / (torch.norm(w1v) * torch.norm(w2v))
+        return torch.dot(self._W2[word_idx1], self._W2[word_idx2]) / (
+                torch.norm(self._W2[word_idx1]) * torch.norm(self._W2[word_idx2]))
 
     def train(self, num_epochs, learning_rate, index_pairing, verbose=False):
         """
@@ -71,21 +72,70 @@ class Word2Vec:
             if verbose:
                 print(f'Loss at epo {epo}: {loss_val / len(index_pairing)}')
 
-    def get_closest_word(self, word, topn=5):
+    def get_closest_word(self, word, top_n=5):
+        """
+        Finds top_n closest words from a given word
+        based on the Word2Vec model
+        :param word: chosen word
+        :param top_n: amount of closest words to be returned
+        :return: array of tuples, with nearest words and their cosine similarity value
+        """
         word_distance = []
         i = self.word2idx[word]
         for j in range(self.vocab_size):
             if j != i:
                 word_distance.append((self.idx2word[j], self.similarity(j, i)))
         word_distance.sort(key=lambda x: x[1], reverse=True)
-        return word_distance[:topn]
+        return word_distance[:top_n]
 
-    def plot(self, table, vocab):
+    def plot2D(self, similarity_table: [[]]):
+        """
+        Plots word vectors in a 2D space.
+        Also saves the plot as .png file in processed/plots folder
+        :param similarity_table: 2D array
+        :return:
+        """
+        trans_table = [list(i) for i in zip(*similarity_table)]
         pca = PCA(n_components=2)
-        pca.fit(table)
-        Xpca = pca.transform(table)
-        for i in range(len(vocab)):
+        pca.fit(trans_table)
+        Xpca = pca.transform(trans_table)
+        for i in range(len(self.idx2word)):
             plt.scatter(Xpca[i, 0], Xpca[i, 1])
-            plt.annotate(i, Xpca[i, 0], Xpca[i, 1], alpha=0.7)
-        plt.draw()
+            plt.annotate(self.idx2word[i], (Xpca[i, 0], Xpca[i, 1]), alpha=0.7)
+        # Disable axis visibility for better readability
+        ax = plt.gca()
+        ax.axes.xaxis.set_visible(False)
+        ax.axes.yaxis.set_visible(False)
+        # Create plots folder (if it does not exists)
+        dirname = os.path.join(os.path.dirname(__file__), "../processed/plots")
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        plt.savefig(os.path.join(dirname, "2D-plot.png"))
+        plt.show()
+
+    def plot3D(self, similarity_table: [[]]):
+        """
+        Plots word vectors in a 3D space
+        Also saves the plot as .png file in processed/plots folder
+        :param similarity_table: 2D array
+        :return:
+        """
+        trans_table = [list(i) for i in zip(*similarity_table)]
+        pca = PCA(n_components=3)
+        pca.fit(trans_table)
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        Xpca = pca.transform(trans_table)
+        for i in range(len(self.idx2word)):
+            ax.scatter(Xpca[i, 0], Xpca[i, 1], Xpca[i, 2])
+            ax.text(Xpca[i, 0], Xpca[i, 1], Xpca[i, 2], self.idx2word[i], alpha=0.7)
+        # Disable axis visibility for better readability
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_zticks([])
+        # Create plots folder (if it does not exists)
+        dirname = os.path.join(os.path.dirname(__file__), "../processed/plots")
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        plt.savefig(os.path.join(dirname, "3D-plot.png"))
         plt.show()
