@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import matplotlib.pyplot as plt
 import torch
@@ -8,7 +10,8 @@ from torch.utils.data import random_split, TensorDataset
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
     def __init__(self, num_of_classes: int, input_element_size: int, encoding_size_per_element: int,
-                 device=torch.device("cpu"), directory="state", class_names: str = None, classification_bias: Tensor = None):
+                 device=torch.device("cpu"), directory="state", class_names: [] = None,
+                 classification_bias: Tensor | None = None):
         """
         Creates a model object using the given parameters.
 
@@ -66,7 +69,10 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param y: The y data.
         :return: Tensor containing the loss.
         """
-        return nn.functional.cross_entropy(self.logits(x), y, weight=self.classification_bias.to(self.device)).to(self.device)
+        return (nn.functional.cross_entropy(self.logits(x), y.to(self.device)).to(self.device)
+                if self.classification_bias is None else
+                nn.functional.cross_entropy(self.logits(x), y,
+                                            weight=self.classification_bias.to(self.device)).to(self.device))
 
     # Accuracy
     def accuracy(self, x: torch.Tensor, y: torch.Tensor, batch_size: int) -> float:
