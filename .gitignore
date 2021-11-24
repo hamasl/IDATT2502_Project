@@ -7,5 +7,5 @@ formatted/
 data/
 processed/
 state
-test_c_files
 test.c
+plots

@@ -14,7 +14,7 @@ from preprocessing.x_table import get_x_table
 
 
 def pre_process_predict(file_path: str):
-    tkn = tokenizer.Tokenizer(1)
+    tkn = tokenizer.Tokenizer(5)
     x = []
     functions, _, function_names = tkn.get_functions(file_path, 0, 0, ignore_main=False)
     for tokenized in tkn.file_tokenize(functions):

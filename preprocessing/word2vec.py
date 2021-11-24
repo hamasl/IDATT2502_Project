@@ -107,12 +107,8 @@ class Word2Vec:
         ax = plt.gca()
         ax.axes.xaxis.set_visible(False)
         ax.axes.yaxis.set_visible(False)
-        # Create plots folder (if it does not exists)
         dirname = os.path.join(os.path.dirname(__file__), "../preprocessing/plots")
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
         plt.savefig(os.path.join(dirname, "2D-plot.png"))
-        plt.show()
 
     def plot3D(self, similarity_table: [[]]):
         """
@@ -134,9 +130,5 @@ class Word2Vec:
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_zticks([])
-        # Create plots folder (if it does not exists)
         dirname = os.path.join(os.path.dirname(__file__), "../preprocessing/plots")
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
         plt.savefig(os.path.join(dirname, "3D-plot.png"))
-        plt.show()

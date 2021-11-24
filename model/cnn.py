@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 from torch.utils.data import random_split, TensorDataset
+from sklearn.metrics import confusion_matrix as cm
+from sklearn.metrics import ConfusionMatrixDisplay
 
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
@@ -83,7 +85,26 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         for i in range(len(x_batches)):
             accuracy += torch.mean(torch.eq(self.f(x_batches[i].to(self.device)).argmax(1).to(self.device),
                                             y_batches[i].to(self.device)).float()).to(self.device)
+
         return accuracy / len(x_batches)
+
+    def confusion_matrix(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
+        """
+        Creates a confusion matrix from the predictions and the labels
+        :param x: The data elements to be predicted.
+        :param y: The correct class for each data element.
+        :param batch_size: The size of each batch.
+        :return: confusion matrix
+        """
+        predicted_answer = torch.tensor([])
+        x_batches = torch.split(x, batch_size)
+        y_batches = torch.split(y, batch_size)
+        for i in range(len(x_batches)):
+            batch_predict = self.f(x_batches[i].to(self.device)).argmax(1).to(torch.device("cpu"))
+            predicted_answer = torch.cat((predicted_answer, batch_predict), 0)
+        ConfusionMatrixDisplay.from_predictions(y.to(torch.device("cpu")), predicted_answer, display_labels=self.class_names, 
+                                                normalize='true', xticks_rotation='vertical')
+        plt.savefig(os.path.join(self._dirname, "plots", "confusion_matrix.png"))
 
     def false_positive_vs_false_negative(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
         false_positives = [0] * self.num_of_classes
@@ -148,6 +169,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                 if verbose:
                     print(
                         f"Completed {(epoch + 1) + (cross_validation * epochs)} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
+                    if(epoch+1 == epochs): self.confusion_matrix(x_test.to(self.device), y_test.to(self.device), 20)
         x_train, y_train, x_test, y_test = self.split_data(x, y)
         false_positives, false_negatives = self.false_positive_vs_false_negative(x_test, y_test, 100)
         fig, axs = plt.subplots(1, len(false_negatives), sharey=True)
@@ -159,7 +181,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             axs[i].bar("FN", 100 * false_negatives[i] / total, color="orange", label="FN = False negative")
         handles, labels = axs[len(false_negatives) - 1].get_legend_handles_labels()
         fig.legend(handles, labels, loc='lower right')
-        plt.show()
+        plt.savefig(os.path.join(self._dirname, "plots", "FNFP.png"))
 
     def save_model_state(self):
         """
