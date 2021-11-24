@@ -9,3 +9,4 @@ processed/
 state
 test.c
 plots
+class_names.py
