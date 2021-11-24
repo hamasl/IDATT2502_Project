@@ -104,7 +104,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             predicted_answer = torch.cat((predicted_answer, batch_predict), 0)
         ConfusionMatrixDisplay.from_predictions(y.to(torch.device("cpu")), predicted_answer, display_labels=self.class_names, 
                                                 normalize='true', xticks_rotation='vertical')
-        plt.savefig(os.path.join(self._dirname, "plots"))
+        plt.savefig(os.path.join(self._dirname, "plots", "confusion_matrix.png"))
 
     def false_positive_vs_false_negative(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
         false_positives = [0] * self.num_of_classes
@@ -181,7 +181,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             axs[i].bar("FN", 100 * false_negatives[i] / total, color="orange", label="FN = False negative")
         handles, labels = axs[len(false_negatives) - 1].get_legend_handles_labels()
         fig.legend(handles, labels, loc='lower right')
-        plt.show()
+        plt.savefig(os.path.join(self._dirname, "plots", "FNFP.png"))
 
     def save_model_state(self):
         """
