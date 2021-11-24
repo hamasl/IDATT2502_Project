@@ -11,3 +11,8 @@ run_preprocessing:
 
 run_model:
 	python3 -m model
+
+predict:
+	@clang-format $(file_path) > $(file_path).formatted
+	-python3 -m app $(file_path).formatted
+	@rm -f $(file_path).formatted

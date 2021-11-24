@@ -1,3 +1,3 @@
-class_names = ["None", "Divide by Zero",
+class_names = ["None", "Uncontrolled Format String",
                "Stack Based Buffer Overflow", "Memory Leak",
-               "Uncontrolled Format String"]
+               "Divide by Zero"]
