@@ -7,9 +7,11 @@ format_test_files:
 
 
 run_preprocessing:
+	makedir -p preprocessing/plots
 	python3 -m preprocessing
 
 run_model:
+	makedir -p model/plots
 	python3 -m model
 
 predict:

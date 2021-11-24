@@ -105,7 +105,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             predicted_answer = torch.cat((predicted_answer, batch_predict), 0)
         ConfusionMatrixDisplay.from_predictions(y.to(torch.device("cpu")), predicted_answer, display_labels=self.class_names, 
                                                 normalize='true', xticks_rotation='vertical')
-        plt.show()
+        os.make
+        plt.savefig(os.path.join(self._dirname, "plots"))
 
     def false_positive_vs_false_negative(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
         false_positives = [0] * self.num_of_classes
