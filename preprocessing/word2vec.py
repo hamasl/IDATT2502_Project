@@ -92,7 +92,7 @@ class Word2Vec:
     def plot2D(self, similarity_table: [[]]):
         """
         Plots word vectors in a 2D space.
-        Also saves the plot as .png file in processed/plots folder
+        Also saves the plot as .png file in preprocessing/plots folder
         :param similarity_table: 2D array
         :return:
         """
@@ -108,7 +108,7 @@ class Word2Vec:
         ax.axes.xaxis.set_visible(False)
         ax.axes.yaxis.set_visible(False)
         # Create plots folder (if it does not exists)
-        dirname = os.path.join(os.path.dirname(__file__), "../processed/plots")
+        dirname = os.path.join(os.path.dirname(__file__), "../preprocessing/plots")
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         plt.savefig(os.path.join(dirname, "2D-plot.png"))
@@ -117,7 +117,7 @@ class Word2Vec:
     def plot3D(self, similarity_table: [[]]):
         """
         Plots word vectors in a 3D space
-        Also saves the plot as .png file in processed/plots folder
+        Also saves the plot as .png file in preprocessing/plots folder
         :param similarity_table: 2D array
         :return:
         """
@@ -135,7 +135,7 @@ class Word2Vec:
         ax.set_yticks([])
         ax.set_zticks([])
         # Create plots folder (if it does not exists)
-        dirname = os.path.join(os.path.dirname(__file__), "../processed/plots")
+        dirname = os.path.join(os.path.dirname(__file__), "../preprocessing/plots")
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         plt.savefig(os.path.join(dirname, "3D-plot.png"))
