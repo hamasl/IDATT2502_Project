@@ -1,3 +1,1 @@
-class_names = ["None", "Uncontrolled Format String",
-               "Stack Based Buffer Overflow", "Memory Leak",
-               "Divide by Zero"]
+class_names = ['None', 'CWE134_Uncontrolled_Format_String', 'CWE121_Stack_Based_Buffer_Overflow', 'CWE401_Memory_Leak', 'CWE369_Divide_by_Zero' ]

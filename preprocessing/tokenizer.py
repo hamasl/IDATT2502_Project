@@ -113,12 +113,16 @@ class Tokenizer:
         print("Tokenizing...")
         x = []
         y = []
+        folders = []
         dirname = os.path.join(os.path.dirname(__file__), "../formatted/")
         for index, folder in enumerate(os.listdir(os.path.join(dirname))):
+            folders.append(f"'{folder}'")
             for file in os.listdir(os.path.join(dirname, folder)):
                 functions, types, _ = self.get_functions(os.path.join(dirname, folder, file), len(y), index+1, num_of_functions=2)
                 y += types
                 for tokenized in self.file_tokenize(functions):
                     x.append(tokenized)
         print(f"Number of function types: {len(y)}")
+        with open(os.path.join(os.path.dirname(__file__), 'class_names.py'), 'w') as file:
+            file.write(f"class_names = ['None', {', '.join(folders)} ]")
         return x, y
