@@ -39,6 +39,11 @@ def write_to_file(table: [[float]]):
 
 
 def read_from_file():
+    """
+    Reads similarity table from file
+
+    :return: Similarity table
+    """
     table = []
     csv_file = "state/similarity_table.csv"
     with open(os.path.join(os.path.dirname(__file__), csv_file), 'r') as file:

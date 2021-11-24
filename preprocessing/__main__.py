@@ -28,18 +28,18 @@ def pre_process_predict(file_path: str):
 
 
 def pre_process_train():
-    tkn = tokenizer.Tokenizer(11)
+    tkn = tokenizer.Tokenizer(5)
     x, y = tkn.tokenize()
     dictionary = keyword_dictionary.get_keywords()
     x = generalizer.handle_functions_and_variables(generalizer.handle_literals(x, dictionary), dictionary)
-    word2idx = vocab.create_vocabulary(x)
+    word2idx, idx2word = vocab.create_vocabulary(x)
     vocab.write_to_file(word2idx)
     index_pairing = vocab_pairing.index_pairing(x, word2idx)
     device = torch.device("cpu")
     print(f"Running on: {device}")
-    word2vec_model = word2vec.Word2Vec(len(word2idx), word2idx, device)
+    word2vec_model = word2vec.Word2Vec(len(word2idx), word2idx, idx2word, device)
     print("Training word2vec model:")
-    word2vec_model.train(1, 0.015, index_pairing, verbose=True)
+    word2vec_model.train(20, 0.015, index_pairing, verbose=True)
     print("Completed word2vec training")
     similarity_table = sim_table.get_similarity_table(len(word2idx), word2vec_model)
     sim_table.write_to_file(similarity_table)
@@ -51,6 +51,9 @@ def pre_process_train():
     dirname = os.path.join(os.path.dirname(__file__), "../processed")
     torch.save(x, os.path.join(dirname, "x.pt"))
     torch.save(y, os.path.join(dirname, "y.pt"))
+    # Plot results
+    word2vec_model.plot2D(similarity_table)
+    word2vec_model.plot3D(similarity_table)
 
 
 if __name__ == '__main__':
