@@ -51,10 +51,9 @@ def pre_process_train():
     dirname = os.path.join(os.path.dirname(__file__), "../processed")
     torch.save(x, os.path.join(dirname, "x.pt"))
     torch.save(y, os.path.join(dirname, "y.pt"))
-    # Lines bellow can be used for plotting word vectors
-    # similarity_table = sim_table.read_from_file()
-    # word2vec_model.plot2D(similarity_table)
-    # word2vec_model.plot3D(similarity_table)
+    # Plot results
+    word2vec_model.plot2D(similarity_table)
+    word2vec_model.plot3D(similarity_table)
 
 
 if __name__ == '__main__':
