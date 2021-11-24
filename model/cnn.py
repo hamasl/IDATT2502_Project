@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import os
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from torch import Tensor
 from torch.utils.data import random_split, TensorDataset
 from sklearn.metrics import confusion_matrix as cm
 from sklearn.metrics import ConfusionMatrixDisplay
@@ -10,7 +11,7 @@ from sklearn.metrics import ConfusionMatrixDisplay
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
     def __init__(self, num_of_classes: int, input_element_size: int, encoding_size_per_element: int,
-                 device=torch.device("cpu"), directory="state", class_names: str = None, classification_bias: Tensor = None):
+                 device=torch.device("cpu"), directory="state", class_names: [] = None):
         """
         Creates a model object using the given parameters.
 
@@ -24,8 +25,6 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self.encoding_size_per_element = encoding_size_per_element
         self.device = device
         self._dirname = os.path.join(os.path.dirname(__file__), directory)
-        # Does not matter if classifiaction_bias is none because cross entropy loss with None as weights behave as without weights.
-        self.classification_bias = classification_bias
         self.class_names = class_names
 
         # Model layers (includes initialized model variables):
@@ -68,7 +67,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         :param y: The y data.
         :return: Tensor containing the loss.
         """
-        return nn.functional.cross_entropy(self.logits(x), y, weight=self.classification_bias.to(self.device)).to(self.device)
+        return nn.functional.cross_entropy(self.logits(x), y.to(self.device)).to(self.device)
 
     # Accuracy
     def accuracy(self, x: torch.Tensor, y: torch.Tensor, batch_size: int) -> float:
