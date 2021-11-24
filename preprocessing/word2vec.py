@@ -39,7 +39,7 @@ class Word2Vec:
         Measures the similarity of two words.
         :param word_idx1: The index of word1.
         :param word_idx2: The index of word2.
-        :return: Int between 1 and -1, where 1 i equal. Cosine similarity
+        :return: Int between 1 and -1, where 1 means equal words. Cosine similarity
         """
         w1v = torch.matmul(self._W2, torch.matmul(self._W1, self.get_input_layer(word_idx1)))
         w2v = torch.matmul(self._W2, torch.matmul(self._W1, self.get_input_layer(word_idx2)))
