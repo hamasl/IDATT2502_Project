@@ -7,9 +7,11 @@ format_test_files:
 
 
 run_preprocessing:
+	mkdir -p ./preprocessing/state
 	python3 -m preprocessing
 
 run_model:
+	mkdir -p ./model/state
 	python3 -m model
 
 predict:
