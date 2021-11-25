@@ -10,7 +10,7 @@ from sklearn.metrics import ConfusionMatrixDisplay
 
 class ConvolutionalNeuralNetworkModel(nn.Module):
     def __init__(self, num_of_classes: int, input_element_size: int, encoding_size_per_element: int,
-                 device=torch.device("cpu"), directory="state", class_names: [] = None):
+                 device=torch.device("cpu"), state_directory="state", plots_directory="plots", class_names: [] = None):
         """
         Creates a model object using the given parameters.
 
@@ -23,7 +23,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         self.input_element_size = input_element_size
         self.encoding_size_per_element = encoding_size_per_element
         self.device = device
-        self._dirname = os.path.join(os.path.dirname(__file__), directory)
+        self._state_dirname = os.path.join(os.path.dirname(__file__), state_directory)
+        self._plots_dirname = os.path.join(os.path.dirname(__file__), plots_directory)
         self.class_names = class_names
         self.accuracies = []
 
@@ -93,8 +94,12 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         """
         Plots a graph of accuracies received during training and saves it
         """
-        plt.plot(self.accuracies)
-        plt.savefig(os.path.join(self._dirname, "plots", "Accuracies.png"))
+        fig, axs = plt.subplots(1, 1)
+        axs.title.set_text("Accuracy per epoch")
+        axs.set_xlabel("Epochs")
+        axs.set_ylabel("Accuracy")
+        axs.plot(self.accuracies)
+        plt.savefig(os.path.join(self._plots_dirname, "Accuracies.png"))
 
     def confusion_matrix(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
         """
@@ -111,7 +116,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             predicted_answer = torch.cat((predicted_answer, batch_predict), 0)
         ConfusionMatrixDisplay.from_predictions(y.to(torch.device("cpu")), predicted_answer, display_labels=self.class_names, 
                                                 normalize='true', xticks_rotation='vertical')
-        plt.savefig(os.path.join(self._dirname, "plots", "confusion_matrix.png"))
+        plt.savefig(os.path.join(self._plots_dirname, "confusion_matrix.png"))
 
     def false_positive_vs_false_negative(self, x: torch.Tensor, y: torch.Tensor, batch_size: int):
         false_positives = [0] * self.num_of_classes
@@ -178,10 +183,11 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                         f"Completed {(epoch + 1) + (cross_validation * epochs)} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
                     if epoch+1 == epochs:
                         self.confusion_matrix(x_test.to(self.device), y_test.to(self.device), 20)
+        print("Completed training, creating and saving data plots...")
+        self.plot_accuracies()
         x_train, y_train, x_test, y_test = self.split_data(x, y)
         false_positives, false_negatives = self.false_positive_vs_false_negative(x_test, y_test, 100)
         fig, axs = plt.subplots(1, len(false_negatives), sharey=True)
-        # fig.title("FP vs FN grouped by class.")
         for i in range(len(false_negatives)):
             total = false_positives[i] + false_negatives[i]
             axs[i].title.set_text(i if self.class_names is None else self.class_names[i])
@@ -189,9 +195,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
             axs[i].bar("FN", 100 * false_negatives[i] / total, color="orange", label="FN = False negative")
         handles, labels = axs[len(false_negatives) - 1].get_legend_handles_labels()
         fig.legend(handles, labels, loc='lower right')
-        plt.savefig(os.path.join(self._dirname, "plots", "FNFP.png"))
-        self.plot_accuracies()
-
+        plt.savefig(os.path.join(self._plots_dirname, "FNFP.png"))
 
 
     def save_model_state(self):
@@ -199,19 +203,19 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         Saves the model state
         :return: None
         """
-        with open(os.path.join(self._dirname, "hyper_params.txt"), 'w') as f:
+        with open(os.path.join(self._state_dirname, "hyper_params.txt"), 'w') as f:
             f.write(f"{self.num_of_classes},{self.input_element_size},{self.encoding_size_per_element}")
-        torch.save(self.state_dict(), os.path.join(self._dirname, "cnn_state.pth"))
+        torch.save(self.state_dict(), os.path.join(self._state_dirname, "cnn_state.pth"))
 
     def load_model_state(self):
         """
         Loads the model state
         :return: None
         """
-        with open(os.path.join(self._dirname, "hyper_params.txt"), 'r') as f:
+        with open(os.path.join(self._state_dirname, "hyper_params.txt"), 'r') as f:
             line = f.readline().split(",")
             self.num_of_classes = int(line[0])
             self.input_element_size = int(line[1])
             self.encoding_size_per_element = int(line[2])
         self.logits = self._get_model()
-        self.load_state_dict(torch.load(os.path.join(self._dirname, "cnn_state.pth"), map_location=self.device))
+        self.load_state_dict(torch.load(os.path.join(self._state_dirname, "cnn_state.pth"), map_location=self.device))
