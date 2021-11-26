@@ -4,7 +4,7 @@ import preprocessing.generalizer_constants as sc
 import preprocessing.keyword_dictionary as kd
 
 
-class NameSimplifierTest(unittest.TestCase):
+class GeneralizerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.dictionary = kd.get_keywords()
 
