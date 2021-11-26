@@ -8,6 +8,9 @@ By:
 The task was to create a machine learning model with the ability to detect software vulnerabilities in source code.
 C was selected as the language to analyze.
 
+## Important note
+This project was created on Linux and MacOs therefore it has not been tested on Windows and may not work there.
+
 ## Requirements
 * [python 3.8 (or later)](https://www.python.org)
 * sh compatible shell e.g. [bash shell (or similar)](https://www.gnu.org/software/bash/)
@@ -15,6 +18,15 @@ C was selected as the language to analyze.
 
 ## Recommendations
 * CUDA (for fast runtime)
+
+## Packages
+* [matplotlib](https://matplotlib.org)
+* [torch](https://pytorch.org)
+* [PyYAML](https://pyyaml.org)
+* [numpy](https://numpy.org)
+* [tqdm](https://tqdm.github.io)
+* [scikit-learn](https://scikit-learn.org/stable/index.html)
+* [sklearn](https://sklearn.org)
 
 ## Install packages
 Use command:
@@ -100,6 +112,7 @@ make run_preprocessing
 
 Without make:
 ```
+mkdir -p processed
 mkdir -p preprocessing/plots
 mkdir -p ./preprocessing/state
 python3 -m preprocessing

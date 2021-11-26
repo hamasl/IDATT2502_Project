@@ -27,9 +27,9 @@ class CnnTest(unittest.TestCase):
 
     def test_write_state_and_read_state_to_new_model(self):
         dirname = os.path.join(os.path.dirname(__file__), "state")
-        model1 = cnn.ConvolutionalNeuralNetworkModel(10, 32, 30, directory=dirname)
+        model1 = cnn.ConvolutionalNeuralNetworkModel(10, 32, 30, state_directory=dirname)
         model1.save_model_state()
-        model2 = cnn.ConvolutionalNeuralNetworkModel(8, 24, 30, directory=dirname)
+        model2 = cnn.ConvolutionalNeuralNetworkModel(8, 24, 30, state_directory=dirname)
         model2.load_model_state()
         self.assertEqual(model1.input_element_size, model2.input_element_size)
         self.assertEqual(model1.num_of_classes, model2.num_of_classes)

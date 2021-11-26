@@ -11,7 +11,6 @@ def pad(inp, num_of_words, pad_length: int = 0):
     :return: padded array and masked array
     """
     max_len_row = len(max(inp, key=len)) if pad_length == 0 else pad_length
-    # Padded length must be multiple of 4
     padded = torch.zeros((len(inp), max_len_row, num_of_words))
 
     for i in range(len(inp)):
