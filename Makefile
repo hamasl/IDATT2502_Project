@@ -7,6 +7,7 @@ format_test_files:
 
 
 run_preprocessing:
+	mkdir -p processed
 	mkdir -p preprocessing/plots
 	mkdir -p ./preprocessing/state
 	python3 -m preprocessing

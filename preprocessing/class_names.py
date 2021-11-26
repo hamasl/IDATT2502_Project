@@ -1,1 +1,1 @@
-class_names = ['None']
+class_names = ['None', 'Divide by Zero', 'Memory Leak']

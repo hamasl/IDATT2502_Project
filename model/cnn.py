@@ -114,7 +114,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         for i in range(len(x_batches)):
             batch_predict = self.f(x_batches[i].to(self.device)).argmax(1).to(torch.device("cpu"))
             predicted_answer = torch.cat((predicted_answer, batch_predict), 0)
-        ConfusionMatrixDisplay.from_predictions(y.to(torch.device("cpu")), predicted_answer, display_labels=self.class_names, 
+        ConfusionMatrixDisplay.from_predictions(y.to(torch.device("cpu")), predicted_answer,
+                                                display_labels=self.class_names,
                                                 normalize='true', xticks_rotation='vertical')
         plt.savefig(os.path.join(self._plots_dirname, "confusion_matrix.png"))
 
@@ -148,8 +149,8 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         x_test, y_test = test_set[:][0], test_set[:][1]
         return x_train, y_train, x_test, y_test
 
-    def train_model(self, x: torch.Tensor, y: torch.Tensor, batch_size=600, cross_validations=1,
-                    learning_rate=0.001, epochs=5, verbose=False):
+    def train_model(self, x: torch.Tensor, y: torch.Tensor, batch_size=600, cross_validations=3,
+                    learning_rate=0.00015, epochs=4, verbose=False):
         """
         Trains the model.
         :param x: The raw input of the x tensor
@@ -181,7 +182,7 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
                 if verbose:
                     print(
                         f"Completed {(epoch + 1) + (cross_validation * epochs)} epochs. Accuracy: {self.accuracy(x_test.to(self.device), y_test.to(self.device), 50)}")
-                    if epoch+1 == epochs:
+                    if epoch + 1 == epochs:
                         self.confusion_matrix(x_test.to(self.device), y_test.to(self.device), 20)
         print("Completed training, creating and saving data plots...")
         self.plot_accuracies()
@@ -196,7 +197,6 @@ class ConvolutionalNeuralNetworkModel(nn.Module):
         handles, labels = axs[len(false_negatives) - 1].get_legend_handles_labels()
         fig.legend(handles, labels, loc='lower right')
         plt.savefig(os.path.join(self._plots_dirname, "FNFP.png"))
-
 
     def save_model_state(self):
         """
