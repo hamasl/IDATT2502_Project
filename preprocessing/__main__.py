@@ -39,7 +39,7 @@ def pre_process_train():
     print(f"Running on: {device}")
     word2vec_model = word2vec.Word2Vec(len(word2idx), word2idx, idx2word, device)
     print("Training word2vec model:")
-    word2vec_model.train(1, 0.015, index_pairing, verbose=True)
+    word2vec_model.train(20, 0.015, index_pairing, verbose=True)
     print("Completed word2vec training")
     similarity_table = sim_table.get_similarity_table(len(word2idx), word2vec_model)
     sim_table.write_to_file(similarity_table)
